@@ -75,7 +75,10 @@ reentrentlock+aqs
 • show processlist 查看当前语句状态
 • 等MDL锁
 • 等flush
-• 等行锁
+• 等行锁，sys.innodb_lock_waits 查看谁占用锁
+• 第二类：查询慢
+• 扫描行数太多/扫描行数一行，但是其他事务在更新导致奇慢
+• lock in share mode 是当前读，默认是一致性读
 
 
 
