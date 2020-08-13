@@ -42,43 +42,70 @@ MySQL四十五讲：
 - 更新数据都是先读后写，称为“当前读”
 - 读锁 lock in share mode 写锁 for update
 - 事务的可重复读的能力是怎么实现的，核心是一致性读，事务更新时，只能当前读
-•
 
 
-## B树和B+树读区别
-
-binlog格式的区别
-存储过程
-
-nginx面试题
-reentrentlock+aqs
-
+## 09讲普通索引和唯一索引，应该怎么选择
+- 数据页的大小默认是16KB。
+- 更新过程 change buffer
+- 唯一索引的更新就不能使用change buffer，普通索引改为唯一索引有性能代价
+- 写入之后马上会做查询不适合changeBuffer
+- 索引选择和实践
+- change buffer 和 redo log
+- redo log 主要节省的是随机写磁盘的IO消耗（转成顺序写），而change buffer主要节省的则是随机读磁盘的IO消耗。
+## 10讲MySQL为什么有时候会选错索引
+- 扫描行数是怎么判断的
+- 原本可以执行得很快的SQL语句，执行速度却比你预期的慢很多
+- 索引选择异常和处理，加force index,或者修改语句，引导MySQL使用我们期望的索引order by b,a limit 1
+## 11讲怎么给字符串字段加索引
+- 前缀索引，定义好长度
+- 前缀索引用不到覆盖索引
+- 索引选取的越长，相同的数据页能放下的索引值就越少
+- 倒序存储。hash字段，都不能使用范围查询了
+## 12讲为什么我的MySQL会“抖”一下
+- 刷脏页，redolog写满了
+- 系统内存不足。当需要新的内存页
+- InnoDB用缓冲池（buffer pool）管理内存
+- 正确地设置磁盘IO能力 innodb_io_capacity参数。刷脏页刷不刷邻居innodb_flush_neighbors=1 true
+## 13讲为什么表数据删掉一半，表文件大小不变
+- InnoDB表包含表结构定义和数据
+- innodb_file_per_table表数据单独放在一个ibd文件中
+- 按页存储，标记删除，复用位置，
+- 整个表的数据删除，所有的数据页都会被标记为可复用
+- 重建表可以去掉空洞，收缩表大小
+- optimize table、analyze table和alter table区别
+## 14讲count(*)这么慢，我该怎么办
+- 为什么InnoDB不跟MyISAM一样，也把数字存起来呢
+- 即使是在同一个时刻的多个查询，由于多版本并发控制（MVCC）的原因，InnoDB表“应该返回多少行”也是不确定的
+- 普通索引树比主键索引树小很多，MySQL优化器会找到最小的那棵树来遍历
+- count(字段)<count(主键id)<count(1)≈count(*)
 
 ## 15讲答疑文章（一）：日志和索引相关问题
+- 答疑篇
+
 ## 16讲“orderby”是怎么工作的
-• 全字段排序
-• sort_buffer_size 控制是否在内存还是需要磁盘临时文件
-• 如果MySQL认为排序的单行长度太大会怎么做，只有要排序的列（即name字段）和主键id  参数: max_length_for_sort_dat
-• 全字段排序 VS rowid排序
-• city,name 使用联合索引不需要排序
-• binlog_format=statement
+- 全字段排序
+- sort_buffer_size 控制是否在内存还是需要磁盘临时文件
+- 如果MySQL认为排序的单行长度太大会怎么做，只有要排序的列（即name字段）和主键id  参数: max_length_for_sort_dat
+- 全字段排序 VS rowid排序
+- city,name 使用联合索引不需要排序
+- binlog_format=statement
 ## 17讲如何正确地显示随机消息
-• 随机排序需求
-• 内存临时表，磁盘临时表
-• limit取的值比较小，使用优先队列排序，不用磁盘临时文件
-• 随机排序方法
+- 随机排序需求
+- 内存临时表，磁盘临时表
+- limit取的值比较小，使用优先队列排序，不用磁盘临时文件
+- 随机排序方法
 ## 18讲为什么这些SQL语句逻辑相同，性能却差异巨大
-• 字段上有函数运算，破坏索引值有序性，不再使用索引
-• 隐式类型转换
-• 隐式字符编码转换
+- 字段上有函数运算，破坏索引值有序性，不再使用索引
+- 隐式类型转换
+- 隐式字符编码转换
 ## 19讲为什么我只查一行的语句，也执行这么慢
-• show processlist 查看当前语句状态
-• 等MDL锁
-• 等flush
-• 等行锁，sys.innodb_lock_waits 查看谁占用锁
-• 第二类：查询慢
-• 扫描行数太多/扫描行数一行，但是其他事务在更新导致奇慢
-• lock in share mode 是当前读，默认是一致性读
+- show processlist 查看当前语句状态
+- 等MDL锁
+- 等flush
+- 等行锁，sys.innodb_lock_waits 查看谁占用锁
+- 第二类：查询慢
+- 扫描行数太多/扫描行数一行，但是其他事务在更新导致奇慢
+- lock in share mode 是当前读，默认是一致性读
 
 
 
