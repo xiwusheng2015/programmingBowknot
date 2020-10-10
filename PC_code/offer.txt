@@ -1,0 +1,922 @@
+
+
+Offer16合并两个排序的链表.java
+offer18删除链表重复节点.java
+offer31两个链表的第一个公共结点.java
+offer4重建二叉树.java
+中序和后续重建二叉树.java
+从尾到头打印链表.java
+反转链表.java
+字符串的全排列.java
+左旋转字符串.java
+第一个只出现一次的字符.java
+翻转字符串.java
+链表中倒数第k个结点.java
+链表回文判断.java
+
+=======================
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+
+import com.kirin.LeetCode.ListNode;
+
+/*
+public class ListNode {
+    int val;
+    ListNode next = null;
+    ListNode(int val) {
+        this.val = val;
+    }
+}*/
+public class Offer16合并两个排序的链表 {
+    public ListNode Merge2(ListNode list1, ListNode list2) {
+        if (list1 == null) {
+            return list2;
+        }
+        if (list2 == null) {
+            return list1;
+        }
+        //新建一个用于存放融合之后的链表
+        //因为，融合的过程中链表是一直移动的，所以要把链表的头保存下来，才能返回正确的一条链
+        ListNode res = new ListNode(0);  //此处或者res = null，这样就不是res.next 而是res
+        ListNode merlistNode = res;
+        while (list1 != null && list2 != null) { //依次比较，将较小的节点连到融合节点上
+            if (list1.val < list2.val) {
+                merlistNode.next = list1;      //连上小的list1
+                list1 = list1.next;         //list1 可以往后移动一个，下次用移动后的和list2比较
+                merlistNode = merlistNode.next;// merlistNode也往后移动一个
+            } else {
+                merlistNode.next = list2;
+                list2 = list2.next;
+                merlistNode = merlistNode.next;
+            }
+
+        }
+        //把未结束的链表连接到合并后的链表尾部
+        if (list1 != null)
+            merlistNode.next = list1;
+        if (list2 != null)
+            merlistNode.next = list2;
+        return res.next;
+    }
+
+    //递归的方式
+    public ListNode Merge(ListNode list1, ListNode list2) {
+        if (list1 == null) {
+            return list2;
+        }
+        if (list2 == null) {
+            return list1;
+        }
+        ListNode newHead = null;
+        if (list1.val <= list2.val) {
+            newHead = list1;
+            newHead.next = Merge(list1.next, list2);
+        } else {
+            newHead = list2;
+            newHead.next = Merge(list1, list2.next);
+        }
+
+        return newHead;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+//在一个排序的链表中，存在着重复的节点，请删除该链表中重复的节点，重复的节点不保留，返回链表头指针
+//重复的节点不保留
+
+import com.kirin.LeetCode.ListNode;
+
+/*
+ public class ListNode {
+    int val;
+    ListNode next = null;
+    ListNode(int val) {
+        this.val = val;
+    }
+}
+*/
+public class offer18删除链表重复节点 {
+    /**
+     * 主要参考博客的解题思路
+     *
+     * @param pHead
+     * @return
+     */
+
+    // pre唯一作用是把当前节点下一个指向不重复的节点
+    // first的作用是怕第一个节点也是重复的，所以借助first节点
+    public ListNode deleteDuplication(ListNode pHead) {
+        if (pHead == null)
+            return null;
+        // 新建一个节点，防止头结点被删除
+        ListNode firstNode = new ListNode(-1);
+        firstNode.next = pHead;
+        ListNode p = pHead;
+        // 指向前一个节点
+        ListNode preNode = firstNode;
+        while (p != null && p.next != null) {//注意条件的顺序，否则不对 因为如果p为null，p.next肯定异常
+            if (p.val == p.next.val) {
+                int val = p.val;
+                // 有多个重复的话while
+                while (p != null && p.val == val) {
+                    p = p.next;
+                }
+                // 上个非重复值指向下一个非重复值：即删除重复值
+                preNode.next = p;
+            } else {
+                // 如果当前节点和下一个节点值不等，则向后移动一位
+                preNode = p;
+                p = p.next;
+            }
+        }
+        return firstNode.next;
+
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+
+import com.kirin.LeetCode.ListNode;
+
+/*
+public class ListNode {
+    int val;
+    ListNode next = null;
+    ListNode(int val) {
+        this.val = val;
+    }
+}*/
+public class offer31两个链表的第一个公共结点 {
+
+    /**
+     * 采用了左程云的代码思想：
+     * 首先，如果相交，那么尾节点一定是一样的。
+     * 接下来，谁长谁就先走一定的步数，然后一起走，肯定是同时到达相交的点。
+     *
+     * @param pHead1
+     * @param pHead2
+     * @return
+     */
+    public ListNode FindFirstCommonNode(ListNode pHead1, ListNode pHead2) {
+        if (pHead1 == null || pHead2 == null)
+            return null;
+        ListNode cur1 = pHead1;
+        ListNode cur2 = pHead2;
+        int n = 0;
+        while (cur1.next != null) {
+            n++; //记录长度
+            cur1 = cur1.next;
+        }
+        while (cur2.next != null) {
+            n--;
+            cur2 = cur2.next;
+        }
+        if (cur1 != cur2)
+            return null;
+        cur1 = n > 0 ? pHead1 : pHead2;// n大于0  说明cur1要先走一部分。
+        cur2 = cur1 == pHead1 ? pHead2 : pHead1;//cur2 等于另一个
+        n = Math.abs(n);
+        while (n != 0) {
+            n--;    //先cur1走完这部分
+            cur1 = cur1.next;
+        }
+        while (cur1 != cur2) {
+            cur1 = cur1.next;
+            cur2 = cur2.next;
+        }
+        return cur1;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.HashMap;
+
+public class offer4重建二叉树 {
+
+    // 新建一个map存储中序遍历的结果
+    HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+
+    int[] preorder;
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        this.preorder = preorder;
+
+        for (int i = 0; i < preorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+
+        return recursive(0, 0, inorder.length - 1);
+    }
+
+    private TreeNode recursive(int pre_root_idx, int in_left_idx, int in_right_idx) {
+
+        // 递归结束的条件
+        if (in_left_idx > in_right_idx) {
+            return null;
+
+        }
+
+        // 数的根节点
+        TreeNode root = new TreeNode(preorder[pre_root_idx]);
+
+        // 根据前序根节点的值，在中序中获取当前根的索引
+        int idx = map.get(preorder[pre_root_idx]);
+
+        // 进行递归，需要画图理解
+        root.left = recursive(pre_root_idx + 1, in_left_idx, idx - 1);
+
+        root.right = recursive(pre_root_idx + idx - 1 - in_left_idx + 1 + 1, idx + 1, in_right_idx);
+
+        // 最后返回的是root
+        return root;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.HashMap;
+import java.util.Map;
+
+class 中序和后续重建二叉树 {
+
+    // 存储inorder数组的 结点 和 下标 的关系
+    Map<Integer, Integer> map = new HashMap<>();
+    // postorder数组的备份
+    int[] post;
+
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        // 转存inorder数组和postorder数组到类变量中
+        for (int i = 0; i < inorder.length; i++)
+            map.put(inorder[i], i);
+        post = postorder;
+
+        TreeNode root = recursive(0, inorder.length - 1, 0, postorder.length - 1);
+        return root;
+    }
+
+    public TreeNode recursive(int inL, int inR, int postL, int postR) {
+        // 递归结束的条件
+        if (inL > inR || postL > postR) return null;
+
+        // 当前结点的值 和 其在中序数组中的下标
+        int nodeVal = post[postR];
+        int index = map.get(nodeVal);
+
+        // 构造当前结点 并 向左右子树深入
+        TreeNode node = new TreeNode(nodeVal);
+        node.left = recursive(inL, index - 1, postL, postL + (index - inL) - 1);
+        node.right = recursive(index + 1, inR, postL + (index - inL), postR - 1);
+        return node;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+import com.kirin.LeetCode.ListNode;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Stack;
+
+public class 从尾到头打印链表 {
+
+    // 使用栈 来倒序
+    public ArrayList<Integer> printListFromTailToHead(ListNode listNode) {
+
+        if (listNode == null) {
+            ArrayList list = new ArrayList();
+            return list;
+        }
+
+        Stack<Integer> stk = new Stack<>();
+        while (listNode != null) {
+            stk.push(listNode.val);
+            listNode = listNode.next;
+        }
+
+        ArrayList<Integer> list = new ArrayList();
+        while (!stk.isEmpty()) {
+            list.add(stk.pop());
+        }
+
+        return list;
+    }
+
+    public ArrayList<Integer> printListFromTailToHead2(ListNode listNode) {
+        ArrayList<Integer> addressArrayList = new ArrayList<Integer>();
+        if (listNode == null) {
+            ArrayList first = new ArrayList();
+            return first;
+        }
+        while (listNode != null) {
+            addressArrayList.add(listNode.val);
+            listNode = listNode.next;
+
+        }
+
+        Collections.reverse(addressArrayList);
+        return addressArrayList;
+    }
+}
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+//class ListNode {
+//    int val;
+//    ListNode next = null;
+//    ListNode(int val) {
+//        this.val = val;
+//    }
+//}
+public class 反转链表 {
+
+    public static void main(String[] args) throws InterruptedException {
+        ListNode listNode = DataTree.getListNode();
+        ListNode listNode1 = new 反转链表().ReverseList(listNode);
+        ListNode.traverse(listNode1);
+    }
+
+    // 反转链表，用next保存当前节点的下一个节点，然后把当前节点指向前一个，
+    public ListNode ReverseList(ListNode head) {
+        if (head == null)
+            return null;
+        ListNode pre = null;
+        ListNode next = null;
+        while (head != null) { //注意这个地方的写法，如果写head.next将会丢失最后一个节点
+            next = head.next;
+            head.next = pre;
+            pre = head;
+            head = next;
+        }
+        return pre;
+    }
+
+    // 使用递归方法
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+        ListNode next = head.next;
+        ListNode new_head = reverseList(next);
+        next.next = head;
+        head.next = null;
+        return new_head;
+    }
+}
+/*
+ //反转链表
+	public ListNode ReverseList1(ListNode head) {
+		if (head == null)
+			return null; // head为当前节点，如果当前节点为空的话，那就什么也不做，直接返回null；
+		ListNode pre = null;
+		ListNode next = null;
+		// 当前节点是head，pre为当前节点的前一节点，next为当前节点的下一节点
+        // 需要pre和next的目的是让当前节点从pre->head->next1->next2变成pre<-head next1->next2
+        // 即pre让节点可以反转所指方向，但反转之后如果不用next节点保存next1节点的话，此单链表就此断开了
+        // 所以需要用到pre和next两个节点
+        // 1->2->3->4->5
+        // 1<-2<-3->4->5
+		while(head != null){ //注意这个地方的写法，如果写head.next将会丢失最后一个节点
+			// 做循环，如果当前节点不为空的话，始终执行此循环，此循环的目的就是让当前节点从指向next到指向pre
+            // 如此就可以做到反转链表的效果
+            // 先用next保存head的下一个节点的信息，保证单链表不会因为失去head节点的原next节点而就此断裂
+			next = head.next; //先让head.next指向的节点，即第二个节点叫next
+			head.next = pre; //将head.next指向pre，也就是说断开head节点与后面的连接
+			pre = head;//pre,head依次向后移动一个节点，进行下一次反转
+			head = next;
+		}
+		// 如果head为null的时候，pre就为最后一个节点了，但是链表已经反转完毕，pre就是反转后链表的第一个节点
+		return pre;
+	}
+	//合并两个递增的链表并且保证最终的链表也是单调不减的。
+*/
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+
+//题目描述
+//        输入一个字符串,按字典序打印出该字符串中字符的所有排列。例如输入字符串abc,
+// 则打印出由字符a,b,c所能排列出来的所有字符串abc,acb,bac,bca,cab和cba。
+
+import java.util.*;
+
+public class 字符串的全排列 {
+
+    public static void main(String[] args) {
+        String a = "122";
+        ArrayList<String> permutation = new 字符串的全排列().Permutation3(a);
+//
+        for (String s : permutation) {
+            System.out.println(s);
+        }
+
+//        for (int i = 1; i < a.length(); i++) {
+//            Permutation2(a.toCharArray(),0);
+//        }
+//        Permutation2(a.toCharArray(),0);
+
+    }
+
+
+    /**
+     * 剑指offer的思路解析。
+     * 步骤：
+     *
+     * @param str
+     * @return
+     */
+    //解法来源：牛客网评论。基于回溯的递归实现。
+    public ArrayList<String> Permutation(String str) {
+        List<String> res = new ArrayList<String>();
+
+        if (str != null && str.length() > 0) {
+            PermutationHelp(str.toCharArray(), 0, res);
+            Collections.sort(res); //按字典序 输出字符串数组。
+        }
+
+        return (ArrayList) res;
+    }
+
+    public void PermutationHelp(char[] chars, int index, List<String> list) {
+        if (index == chars.length - 1) { //当递归交换到最后一个位置的时候，就看看list有么有这个字符串，没有的话就放进去。
+            String val = String.valueOf(chars);
+            if (!list.contains(val)) {//如果最后list没有这个string，因为可能交换后有重复的
+                list.add(val);
+            }
+        } else {
+            for (int i = index; i < chars.length; i++) { //循环来执行交换操作，先交换，然后固定这个，下一个交换。最后要交换回来不要影响执行
+                swap(chars, index, i);
+                PermutationHelp(chars, index + 1, list);//依次固定一个
+                swap(chars, index, i);
+            }
+        }
+    }
+
+    public void swap(char[] chars, int i, int j) {//交换数组中的两个位置中的值
+        char temp = chars[i];
+        chars[i] = chars[j];
+        chars[j] = temp;
+
+    }
+
+    // 方法二： 输入如果有重复字符串，就不行
+    //pos:首字符的所在位置
+    private static void Permutation2(char[] chs, int pos) {
+//        System.out.println(pos);
+        if (chs == null) {
+            return;
+        }
+        if (pos == chs.length - 1) {
+            System.out.println(chs);
+            return;
+        }
+        for (int i = pos; i < chs.length; i++) {
+            //首部字符和它后面的字符（包括自己）进行交换
+            char temp = chs[i];
+            chs[i] = chs[pos];
+            chs[pos] = temp;
+            //递归求后面的字符的排列
+            Permutation2(chs, pos + 1);
+            //由于前面交换了一下，所以chs的内容改变了，我们要还原回来
+            temp = chs[i];
+            chs[i] = chs[pos];
+            chs[pos] = temp;
+        }
+    }
+
+    // 方法三，来自cyc2018
+    //https://github.com/CyC2018/CS-Notes/blob/master/notes/38.%20%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97.md
+    // 成员变量
+    private ArrayList<String> res = new ArrayList<String>();
+
+    public ArrayList<String> Permutation3(String str) {
+
+        char[] chars = str.toCharArray();
+        Arrays.sort(chars);
+        StringBuilder sb = new StringBuilder();
+        boolean[] hasUsed = new boolean[chars.length];
+        helper(chars, hasUsed, sb);
+        return res;
+    }
+
+    private void helper(char[] chars, boolean[] hasUsed, StringBuilder sb) {
+
+        if (sb.length() == chars.length) {
+            res.add(sb.toString());
+            return;
+        }
+
+        for (int i = 0; i < chars.length; i++) {
+
+            if (hasUsed[i]) continue;
+            if (i != 0 && chars[i] == chars[i - 1] && !hasUsed[i - 1]) continue;
+
+            hasUsed[i] = true;
+            sb.append(chars[i]);
+            helper(chars, hasUsed, sb);
+            sb.deleteCharAt(sb.length() - 1);
+            hasUsed[i] = false;
+        }
+    }
+
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+// Likou 189题
+//汇编语言中有一种移位指令叫做循环左移（ROL），现在有个简单的任务，就是用字符串模拟这个指令的运算结果。
+// 对于一个给定的字符序列S，请你把其循环左移K位后的序列输出。例如，字符序列S=”abcXYZdef”,要求输出循环左移3位后的结果，
+// 即“XYZdefabc”。是不是很简单？OK，搞定它！
+// 思路：前n位反转，后几位反转，最后总的反转
+//先反转前n位，再反转后几位，变为了cbafedZYX，再整体反转变为XYZdefabc
+
+public class 左旋转字符串 {
+
+    public static void main(String[] args) {
+        String a = "abcXYZdef";
+        String s = LeftRotateString(a,3);
+        System.out.println(s);
+
+    }
+
+
+    public static String LeftRotateString2(String str, int n) {
+        if (str == null || str.trim().length() == 0) {
+            return str;
+        }
+        int len = str.length();
+        n = n % len;// 当len=3，n=4，其实相当于左旋转1位，所以需要取余
+        char[] charstr = str.toCharArray();
+        //先旋转前面的
+        reverse(charstr, 0, n - 1);
+        //再旋转后面的字符串
+        reverse(charstr, n, len - 1);
+        //最后整体反转
+        reverse(charstr, 0, len - 1);
+        return String.valueOf(charstr);
+    }
+
+    //实现的是charstrs从i到j的反转，也可以使用上题中stringbuffer的反转方式
+    private static void reverse(char[] charStrs, int i, int j) {
+        while (i < j) {
+            char temp = charStrs[i];
+            charStrs[i] = charStrs[j];
+            charStrs[j] = temp;
+            i++;
+            j--;
+        }
+    }
+
+    public static String LeftRotateString(String str, int n) {
+
+        if (str == null || str.trim().length() == 0) {
+            return str;
+        }
+        int len = str.length();
+        n = n % len;// 当len=3，n=4，其实相当于左旋转1位，所以需要取余
+        String str1 = str.substring(0,n);
+        String str2 = str.substring(n,len);
+
+        String a = reverseString(str1);
+        String b = reverseString(str2);
+        String c = a + b;
+        String s = reverseString(c);
+
+//        StringBuilder sb1 = new StringBuilder();
+//        for (int i = str1.length()-1; i >= 0; i--) {
+//            sb1.append(str1.charAt(i));
+//        }
+//        StringBuilder sb2 = new StringBuilder();
+//
+//        for (int i = str2.length()-1; i >= 0; i--) {
+//            sb1.append(str2.charAt(i));
+//        }
+//
+//        String sb = sb1.append(sb2).toString();
+//        StringBuilder res = new StringBuilder();
+//        for (int i = sb.length()-1; i >= 0; i--) {
+//            res.append(sb.charAt(i));
+//        }
+
+        return  s;
+
+    }
+
+    public static String reverseString(String str){
+        StringBuilder res = new StringBuilder();
+
+        for (int i = str.length()-1; i >= 0; i--) {
+            res.append(str.charAt(i));
+        }
+        return res.toString();
+
+    }
+
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+//题目描述
+//        在一个字符串(0<=字符串长度<=10000，全部由字母组成)中找到第一个只出现一次的字符,并返回它的位置, 如果没有则返回 -1（需要区分大小写）
+
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+public class 第一个只出现一次的字符 {
+
+
+    public static void main(String[] args) {
+
+        String a = "dfaefdpafasdfdshisdhsdhfisdhihesdofskfh";
+        int i = FirstNotRepeatingChar(a);
+        System.out.println(i);
+
+    }
+
+
+    public static int FirstNotRepeatingChar(String str) {
+        //这个hashmap有序，所以用这个
+        HashMap<Character, Integer> map = new HashMap<>();
+        //遍历字符串，第一次设为1 否则就加
+        for (int i = 0; i < str.length(); i++) {
+            if (!map.containsKey(str.charAt(i))) {
+                map.put(str.charAt(i), 1);
+            } else
+                map.put(str.charAt(i), map.get(str.charAt(i)) + 1);
+        }
+        //找出现次数为1的
+        for (int i = 0; i < str.length(); i++) {
+            if (map.get(str.charAt(i)) == 1) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    //    来源：牛客网 没啥用处
+    //    说一下解题思路哈，其实主要还是hash，利用每个字母的ASCII码作hash来作为数组的index。
+    // 首先用一个58长度的数组来存储每个字母出现的次数，为什么是58呢，主要是由于A-Z对应的ASCII码为65-90，
+    // a-z对应的ASCII码值为97-122，而每个字母的index=int(word)-65，比如g=103-65=38，而数组中具体记录
+    // 的内容是该字母出现的次数，最终遍历一遍字符串，找出第一个数组内容为1的字母就可以了，时间复杂度为O(n)
+    public int FirstNotRepeatingChar2(String str) {
+        int[] words = new int[58];
+        for (int i = 0; i < str.length(); i++) {
+            words[((int) str.charAt(i)) - 65] += 1;
+        }
+        for (int i = 0; i < str.length(); i++) {
+            if (words[((int) str.charAt(i)) - 65] == 1)
+                return i;
+        }
+        return -1;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+//牛客最近来了一个新员工Fish，每天早晨总是会拿着一本英文杂志，写些句子在本子上。同事Cat对Fish写的内容颇感兴趣，
+// 有一天他向Fish借来翻看，但却读不懂它的意思。例如，“student. a am I”。后来才意识到，这家伙原来把句子单词的
+//顺序翻转了，正确的句子应该是“I am a student.”。Cat对一一的翻转这些单词顺序可不在行，你能帮助他么？
+//思路：两个思路，一个比较简单的就是用空格切分出来，student.  a am I。然后从后往前添加到stringbuffer里面。
+//另一个思路就是基本思路剑指offer，先将整个字符串翻转，然后将每个单词翻转。i love you  反转就是  uoy evol i,然后再每个单词进行反转。
+
+public class 翻转字符串 {
+
+
+    public static void main(String[] args) {
+
+
+        String a = "I am a student.";
+        String s = ReverseSentence(a);
+        System.out.println(s);
+
+    }
+    //第一种方法，用空格将字符串切分，
+    //倒着往stringbuffer里面插入。
+    public static String ReverseSentence1(String str) {
+        if (str == null || str.trim().length() == 0) {
+            return str;
+        }
+        String[] strs = str.split(" ");//str = "i love you"则strs[0]=i strs[1]=love
+        StringBuffer sb = new StringBuffer();
+        for (int i = strs.length - 1; i >= 0; i--) {
+            sb.append(strs[i]);
+            if (i > 0) {//最后一个不添加空格
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
+    }
+
+    //第二种思路，先将整个字符串反转，再逐个单词反转
+    public static String ReverseSentence(String str) {
+        if (str == null || str.length() == 0)
+            return str;
+        if (str.trim().length() == 0)
+            return str;
+        StringBuilder sb = new StringBuilder();
+        String re = reverse(str);
+        String[] s = re.split(" ");
+        for (int i = 0; i < s.length; i++) {
+            sb.append(reverse(s[i]) + " ");
+        }
+//        sb.append(reverse(s[s.length - 1]));
+        return String.valueOf(sb);
+    }
+
+    public static String reverse(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = str.length() - 1; i >= 0; i--) {
+            sb.append(str.charAt(i));
+        }
+        return String.valueOf(sb);
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+
+
+import com.kirin.LeetCode.ListNode;
+
+/*
+public class ListNode {
+    int val;
+    ListNode next = null;
+    ListNode(int val) {
+        this.val = val;
+    }
+}*/
+public class 链表中倒数第k个结点 {
+    public ListNode FindKthToTail(ListNode head, int k) {
+        //一种思路是先遍历一遍求长度，然后输出倒数k个
+        //正常的思路是，设置两个游标,让快的领先k个
+        ListNode slow = head;
+        ListNode fast = head;
+        if (head == null || k <= 0) {
+            return null;
+        }
+        for (int i = 1; i < k; i++) { //快的先走k-1步，倒数第三个，其实应该快的指到第三个，只需要走两步即可。
+            if(fast.next == null) //这个是k与链表长度的关系，如果，链表长度小于k，肯定在走到k之前就出现
+                //null，直接返回null即可
+                return null;
+            else
+                fast = fast.next;
+        }
+        while(fast.next != null){ //快的从第k个，慢的从第1个，同时开始走。
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offer;
+//题目描述
+//        对于一个链表，请设计一个时间复杂度为O(n),额外空间复杂度为O(1)的算法，判断其是否为回文结构。
+//
+//        给定一个链表的头指针head，请返回一个bool值，代表其是否为回文结构。 
+//
+
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+import java.util.ArrayDeque;
+
+
+public class 链表回文判断 {
+
+    public static void main(String[] args) {
+        ListNode listNode = DataTree.getListNode();
+        boolean b = chkPalindrome2(listNode);
+        System.out.println(b);
+
+    }
+
+    // 思路：
+    // 由于是单链表，结点没有指向前一个结点的引用，因此需要将后半部分链表反转。
+    // 定义两个引用，一个在链表头从前向后走， 另一个在链表尾从后向前走。
+    // 每走一步判断两个结点的值是否相同，直到两个引用相遇
+    public static boolean chkPalindrome2(ListNode head) {
+        //找链表中点
+        ListNode fast = head;
+        ListNode slow = head;
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+        }
+        //此时slow位于链表中间，开始反转链表slow后面的部分
+        ListNode p = slow.next;
+        ListNode pNext = p.next;
+        while (p != null) {
+            p.next = slow;
+            slow = p;
+            p = pNext;
+            if (pNext != null) {
+                pNext = pNext.next;
+            }
+        }
+
+        //此时链表后半部分反转完毕，开始判断是否为回文结构
+        while (head != slow) {
+            if (head.val != slow.val) {
+                return false;
+            }
+            //处理链表个数为偶数的情况
+            if (head.next == slow) {
+                return true;
+            }
+            head = head.next;
+            slow = slow.next;
+        }
+        return true;
+    }
+
+
+    //1.用一个栈来存储链表前半部分节点的值。
+    //2.设置两个快慢指针同时指向链表头结点，快指针一次走两步，同时将慢指针指向节点的值入栈，并且慢指针一次走一步，当快指针走到链表结尾时，慢指针正好指向链表的中间。
+    //3.当快指针恰好指向链表的尾节点时，说明链表个数是奇数，那么前半部分节点的值已经全部入栈了。
+    //4.当快指针最后没有指向链表的尾节点时，说明链表个数为偶数，此时需要把慢指针指向节点的值入栈。
+    //5.首先让慢指针指向其下一个节点，然后依次将栈顶元素与慢指针的指向节点的值比较，如果不相等则返回false。
+    // 空间复杂度不满足题目要求
+    public boolean chkPalindrome(ListNode A) {
+        //当A为空或只有一个节点时不是回文
+        if (A == null || A.next == null) {
+            return false;
+        }
+        ListNode pFast = A;
+        ListNode pSlow = A;
+        ArrayDeque<Integer> stack = new ArrayDeque<Integer>();
+        while (pFast.next != null && pFast.next.next != null) {
+            pFast = pFast.next.next;
+            stack.offerFirst(pSlow.val);
+            pSlow = pSlow.next;
+        }
+        /**
+                  * 如果pFast.next不为null，并且pFast.next.next为null，说明链表个数为偶数，那么中间节点必须入栈
+                  * 如果pFast.next为null，说明链表个数为奇数，那么中间节点不必须入栈
+                  */
+        if (pFast.next != null) {
+            stack.offerFirst(pSlow.val);
+        }
+        while (!stack.isEmpty() && pSlow.next != null) {
+            pSlow = pSlow.next;
+            if (stack.pollFirst() != pSlow.val) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+
