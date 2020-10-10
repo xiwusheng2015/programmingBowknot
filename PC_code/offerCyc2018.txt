@@ -1,0 +1,1707 @@
+
+offerCyc2018
+
+offer10斐波那契数列.java
+offer11旋转数组的最小数字.java
+offer12矩阵中的路径回溯法.java
+offer13机器人的运动范围.java
+offer15二进制中1的个数.java
+offer16数值的整数次方.java
+offer17打印从1到最大的n位数.java
+offer18_2删除链表中重复的结点.java
+offer18在o1时间内删除链表节点.java
+offer19正则表达式匹配.java
+offer20表示数值的字符串.java
+offer21奇数位于偶数前面.java
+offer22链表中倒数第K个结点.java
+offer23链表中环的入口结点.java
+offer24反转链表.java
+offer25合并两个排序的链表.java
+offer32_1从上往下打印二叉树.java
+offer32_2把二叉树打印成多行.java
+offer32_3按之字形顺序打印二叉树.java
+offer38字符串全排列有重复.java
+offer40最小的K个数.java
+offer45把数组排成最小的数.java
+offer46把数字翻译成字符串.java
+offer48最长不含重复字符的子字符串.java
+offer4二维数组中的查找.java
+offer51数组中的逆序对归并思想.java
+offer54二叉查找树的第K个结点.java
+offer56数组中只出现一次的数字.java
+offer5替换空格.java
+offer62圆圈中最后剩下的数.java
+offer6从尾到头打印链表.java
+offer7前序中序重建二叉树.java
+offer8二叉树的下一个节点.java
+offer9用两个栈实现队列.java
+tmp.java
+
+
+
+===========================
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import java.util.Arrays;
+
+public class offer10斐波那契数列 {
+
+    public int Fibonacci(int n) {
+        if (n <= 0) return n;
+        int pre2 = 0, pre1 = 1;
+        int fib = 0;
+        for (int i = 2; i <= n; i++) {
+            fib = pre2 + pre1;
+            pre2 = pre1;
+            pre1 = fib;
+        }
+        return fib;
+    }
+
+    public int RectCover(int n) {
+        if (n <= 2) {
+            return n;
+        }
+
+        int pre2 = 1, pre1 = 2;
+        int result = 0;
+        for (int i = 3; i <= n; i++) {
+            result = pre2 + pre1;
+            pre2 = pre1;
+            pre1 = result;
+        }
+        return result;
+    }
+
+    public int JumpFloorII(int target) {
+        int[] dp = new int[target];
+        Arrays.fill(dp, 1);
+        for (int i = 1; i < target; i++) {
+            for (int j = 0; j < i; j++) {
+                dp[i] += dp[j];
+            }
+        }
+        return dp[target - 1];
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/11.%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%B0%8F%E6%95%B0%E5%AD%97.md
+ */
+public class offer11旋转数组的最小数字 {
+
+    public static void main(String[] args) {
+        int[] a = new int[]{7,9,1,3,5};
+        int i = new offer11旋转数组的最小数字().minNumberInRotateArray(a);
+        System.out.println(i);
+    }
+
+    public int minNumberInRotateArray(int[] nums) {
+        if (nums.length == 0) return 0;
+        int l = 0, h = nums.length-1;
+        while (l < h) {
+            int mid = (h + l) / 2;
+            if (nums[l] == nums[mid] && nums[mid] == nums[h]) {
+                return minNumber(nums, l, h);
+            } else if (nums[mid] <= nums[h]) {
+                h = mid;
+            } else {
+                l = mid + 1;
+            }
+        }
+        return nums[l];
+    }
+
+    private int minNumber(int[] nums, int l, int h) {
+        for (int i = l; i < h; i++) {
+            if (nums[i] > nums[i + 1]) {
+                return nums[i + 1];
+            }
+        }
+        return nums[l];
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/12.%20%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B7%AF%E5%BE%84.md
+ */
+public class offer12矩阵中的路径回溯法 {
+
+    private final static int[][] next = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+    private int rows;
+    private int cols;
+
+    public boolean hasPath(char[] array, int rows, int cols, char[] str) {
+        if (rows == 0 || cols == 0) return false;
+
+        this.rows = rows;
+        this.cols = cols;
+        boolean[][] marked = new boolean[rows][cols];
+        char[][] matrix = buildMatrix(array);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (backtracking(matrix, str, marked, 0, i, j)) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean backtracking(char[][] matrix, char[] str,
+                                 boolean[][] marked, int pathLen, int r, int c) {
+
+        if (pathLen == str.length) return true;
+        if (r < 0 || r >= rows || c < 0 || c >= cols
+                || matrix[r][c] != str[pathLen] || marked[r][c]) {
+            return false;
+        }
+
+        // 回溯法
+        marked[r][c] = true;
+
+        for (int[] n : next) {
+            if (backtracking(matrix, str, marked, pathLen + 1, r + n[0], c + n[1])) {
+                return true;
+            }
+        }
+
+        marked[r][c] = false;
+
+        return false;
+    }
+
+
+    private char[][] buildMatrix(char[] array) {
+        char[][] matrix = new char[rows][cols];
+        for (int i = 0, idx = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                matrix[i][j] = array[idx++];
+            }
+        }
+        return matrix;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer13机器人的运动范围 {
+
+    private static final int[][] next = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+    private int cnt = 0;
+    private int rows;
+    private int cols;
+    private int threshold;
+    private int[][] digitSum;
+
+    public int movingCount(int threshold, int rows, int cols) {
+
+        this.rows = rows;
+        this.cols = cols;
+        this.threshold = threshold;
+        initDigitSum();
+        boolean[][] marked = new boolean[rows][cols];
+        dfs(marked, 0, 0);
+        return cnt;
+    }
+
+    private void dfs(boolean[][] marked, int r, int c) {
+
+        if (r < 0 || r >= rows || c < 0 || c >= cols || marked[r][c]) return;
+
+        //如果超过阈值
+        if (this.digitSum[r][c] > this.threshold) return;
+
+        marked[r][c] = true;
+        cnt++;
+        for (int[] n : next) {
+            dfs(marked, r + n[0], c + n[1]);
+        }
+    }
+
+
+    private void initDigitSum() {
+        int[] digitSumOne = new int[Math.max(rows, cols)];
+        for (int i = 0; i < digitSumOne.length; i++) {
+            int n = i;
+            while (n > 0) {
+                digitSumOne[i] += n % 10;
+                n /= 10;
+            }
+        }
+
+        this.digitSum = new int[rows][cols];
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                this.digitSum[i][j] = digitSumOne[i] + digitSumOne[j];
+            }
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/15.%20%E4%BA%8C%E8%BF%9B%E5%88%B6%E4%B8%AD%201%20%E7%9A%84%E4%B8%AA%E6%95%B0.md
+ */
+public class offer15二进制中1的个数 {
+
+    public int NumberOf1(int n) {
+        int cnt = 0;
+        while (n != 0) {
+            cnt++;
+            n &= (n - 1);
+        }
+        return cnt;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://www.jianshu.com/p/8e81a4c8dd34
+ */
+public class offer16数值的整数次方 {
+
+    public double Power(double base, int exponent) {
+        int n = exponent;
+        if (exponent == 0) {
+            return 1;
+        } else if (exponent < 0) {
+            if (base == 0) {
+                throw new RuntimeException("分母不能为0");
+            }
+            n = -exponent;
+        }
+        double res = PowerUnsignedExponent(base, n);
+        return exponent < 0 ? 1 / res : res;
+    }
+
+    public double PowerUnsignedExponent(double base, int n) {
+        if (n == 0) return 1;
+        if (n == 1) return base;
+
+        // 递归
+        double res = PowerUnsignedExponent(base, n / 2);
+
+        res *= res;
+        if (n % 2 == 1) res *= base;
+        return res;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/17.%20%E6%89%93%E5%8D%B0%E4%BB%8E%201%20%E5%88%B0%E6%9C%80%E5%A4%A7%E7%9A%84%20n%20%E4%BD%8D%E6%95%B0.md
+ 题目描述
+输入数字 n，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数即 999。
+
+解题思路
+由于 n 可能会非常大，因此不能直接用 int 表示数字，而是用 char 数组进行存储。
+
+使用回溯法得到所有的数。
+ */
+public class offer17打印从1到最大的n位数 {
+
+    public void print1ToMaxOfNDigits(int n) {
+        if (n < 0) return;
+        char[] number = new char[n];
+        print1ToMaxOfNDigits(number, 0);
+    }
+
+    // 递归进行回溯
+    private void print1ToMaxOfNDigits(char[] number, int digit) {
+        if (digit == number.length) {
+            printNumber(number);
+            return;
+        }
+        for (int i = 0; i < 10; i++) {
+            number[digit] = (char) (i + '0');
+            print1ToMaxOfNDigits(number, digit + 1);
+        }
+    }
+
+    private void printNumber(char[] number) {
+        int index = 0;
+        while (index < number.length && number[index] == '0') {
+            index++;
+        }
+        while (index < number.length) {
+            System.out.print(number[index++]);
+        }
+        System.out.println();
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.ListNode;
+
+public class offer18_2删除链表中重复的结点 {
+
+    public ListNode deleteDuplication(ListNode pHead) {
+
+        if (pHead == null || pHead.next == null)
+            return pHead;
+        ListNode next = pHead.next;
+
+        if (pHead.val == next.val) {
+            while (next != null && pHead.val == next.val)
+                next = next.next;
+            return deleteDuplication(next);
+        } else {
+            pHead.next = deleteDuplication(pHead.next);
+            return pHead;
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.ListNode;
+
+public class offer18在o1时间内删除链表节点 {
+
+    public ListNode deleteNode(ListNode head, ListNode tobeDelete) {
+
+        if (head == null || tobeDelete == null) return null;
+
+        if (tobeDelete.next != null) {
+            ListNode next = tobeDelete.next;
+            tobeDelete.val = next.val;
+            tobeDelete.next = next.next;
+        } else {
+            // 删除最后一个节点
+            if (head.next == null) {
+                head = null;
+            } else {
+                ListNode cur = head;
+                while (cur.next != tobeDelete) {
+                    cur = cur.next;
+                }
+                cur.next = null;
+            }
+        }
+        return head;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/19.%20%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D.md
+
+https://github.com/labuladong/fucking-algorithm/blob/master/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B9%8B%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE.md
+
+ */
+public class offer19正则表达式匹配 {
+
+
+    public static void main(String[] args) {
+
+        String a = "aab";
+        String b = ".a*b";
+        boolean match = new offer19正则表达式匹配().isMatch(a, b);
+        System.out.println(match);
+    }
+
+    public boolean isMatch(String text, String pattern) {
+
+        if (pattern == null || pattern.equals("")) {
+            if (text.equals("")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        boolean first = stringBool(text) && patternBool(pattern, text);
+
+        if(pattern.length()>=2 && pattern.charAt(1)=='*'){
+            return isMatch(text,pattern.substring(2)) || (first && isMatch(text.substring(1),pattern));
+        } else {
+            return isMatch(text.substring(1),pattern.substring(1));
+        }
+
+    }
+
+    private boolean stringBool(String text) {
+        if (text.equals("")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean patternBool(String pattern, String text) {
+
+        if (pattern.charAt(0) == '.' || pattern.charAt(0) == text.charAt(0)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer20表示数值的字符串 {
+
+    public boolean isNumeric(char[] str){
+        if(str==null || str.length ==0) return false;
+
+        return new String(str).matches("[+-]?\\d*(\\.\\d+)?([eE][+-]?\\d+)?");
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer21奇数位于偶数前面 {
+
+    public static void main(String[] args) {
+
+        int[] a = new int[]{1,4,2,3,7};
+        new offer21奇数位于偶数前面().reOrderArray2(a);
+        System.out.println(a);
+    }
+
+    //方法一：创建一个新数组，时间复杂度 O(N)，空间复杂度 O(N)。
+    public void reOrderArray(int[] nums) {
+
+        // 奇数个数
+        int oddCnt = 0;
+        for (int x : nums) {
+            if (!isEven(x)) oddCnt++;
+        }
+
+        int[] copy = nums.clone();
+        int i = 0, j = oddCnt;
+        for (int num : copy) {
+            if (num % 2 == 1)
+                nums[i++] = num;
+            else
+                nums[j++] = num;
+        }
+
+    }
+
+    private boolean isEven(int x) {
+        return x % 2 == 0;
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int t = nums[i];
+        nums[i] = nums[j];
+        nums[j] = t;
+    }
+
+    //方法二：使用冒泡思想，每次都将当前偶数上浮到当前最右边。时间复杂度 O(N2)，空间复杂度 O(1)，时间换空间。
+    public void reOrderArray2(int[] nums) {
+        int N = nums.length;
+        for (int i = N - 1; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                if (isEven(nums[j]) && !isEven(nums[j + 1])) {
+                    swap(nums, j, j + 1);
+                }
+            }
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/22.%20%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E7%AC%AC%20K%20%E4%B8%AA%E7%BB%93%E7%82%B9.md
+ */
+public class offer22链表中倒数第K个结点 {
+
+    public static void main(String[] args) {
+
+        ListNode listNode = DataTree.getListNode();
+        ListNode listNode1 = new offer22链表中倒数第K个结点().FindKthToTail(listNode, 2);
+        System.out.println(listNode1);
+    }
+
+
+    public ListNode FindKthToTail(ListNode head, int k) {
+        if (head == null) return null;
+        ListNode P1 = head;
+
+        while (P1 != null && k > 0) {
+            P1 = P1.next;
+            k--;
+        }
+
+        if (k > 0) return null;
+
+        ListNode P2 = head;
+        while (P1 != null) {
+            P1 = P1.next;
+            P2 = P2.next;
+        }
+
+        return P2;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.ListNode;
+
+public class offer23链表中环的入口结点 {
+
+    public ListNode EntryNodeOfLoop(ListNode pHead) {
+
+
+        if (pHead == null || pHead.next == null) return null;
+
+        ListNode slow = pHead, fast = pHead;
+        while (slow != fast) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        fast = pHead;
+        while (fast != slow) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+        return slow;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+import java.util.LinkedList;
+
+public class offer24反转链表 {
+
+    public static void main(String[] args) {
+
+        ListNode listNode = DataTree.getListNode();
+        ListNode listNode1 = new offer24反转链表().ReverseList(listNode);
+        System.out.println(listNode1);
+    }
+
+    // 递归
+    public ListNode ReverseList(ListNode head) {
+        if (head.next == null) return head;
+
+        ListNode newHead = ReverseList(head.next);
+
+        head.next.next = head;
+        head.next = null;
+
+        return newHead;
+    }
+
+    // 迭代+头插法
+    public ListNode ReverseList2(ListNode head) {
+        ListNode dummyHead = new ListNode(-1);
+
+        while (head != null) {
+
+            ListNode next = head.next;
+
+            head.next = dummyHead.next;
+            dummyHead.next = head;
+            head = next;
+        }
+        return dummyHead.next;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.ListNode;
+
+public class offer25合并两个排序的链表 {
+
+    // 迭代
+    public ListNode Merge2(ListNode list1, ListNode list2) {
+        ListNode head = new ListNode(-1);
+        ListNode cur = head;
+
+        while (list1 != null && list2 != null) {
+            if (list1.val <= list2.val) {
+                cur.next = list1;
+                list1 = list1.next;
+            } else {
+                cur.next = list2;
+                list2 = list2.next;
+            }
+            cur = cur.next;
+        }
+
+        if (list1 != null) {
+            cur.next = list1;
+        }
+        if (list2 != null) {
+            cur.next = list2;
+        }
+        return head.next;
+    }
+
+
+    // 使用递归
+    public ListNode Merge(ListNode list1, ListNode list2) {
+        if (list1 == null) return list2;
+        if (list2 == null) return list1;
+        if (list1.val <= list2.val) {
+            list1.next = Merge(list1.next, list2);
+            return list1;
+        } else {
+            list2.next = Merge(list1, list2.next);
+            return list2;
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class offer32_1从上往下打印二叉树 {
+
+    public static void main(String[] args) {
+        TreeNode treeNode = DataTree.getTreeNode();
+        ArrayList<Integer> integers = new offer32_1从上往下打印二叉树().PrintFromTopToBottom(treeNode);
+        System.out.println(integers);
+    }
+
+    public ArrayList<Integer> PrintFromTopToBottom(TreeNode root) {
+        Queue<TreeNode> queue = new LinkedList<>();
+        ArrayList<Integer> ret = new ArrayList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()){
+            TreeNode node = queue.poll();
+            // 进行处理
+            ret.add(node.val);
+            if(node.left != null){
+                queue.add(node.left);
+            }
+            if(node.right != null){
+                queue.add(node.right);
+            }
+        }
+
+        return ret;
+
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class offer32_2把二叉树打印成多行 {
+
+    public static void main(String[] args) {
+
+        TreeNode treeNode = DataTree.getTreeNode();
+        ArrayList<ArrayList<Integer>> print = new offer32_2把二叉树打印成多行().Print(treeNode);
+        System.out.println(print);
+
+
+    }
+
+    ArrayList<ArrayList<Integer>> Print(TreeNode pRoot) {
+        Queue<TreeNode> q = new LinkedList<>();
+        if (pRoot == null) {
+            return new ArrayList<ArrayList<Integer>>();
+        } else {
+            q.add(pRoot);
+        }
+
+        ArrayList<ArrayList<Integer>> res = new ArrayList<>();
+        while (!q.isEmpty()) {
+            int size = q.size();
+            ArrayList<Integer> level_res = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = q.poll();
+                level_res.add(node.val);
+                if (node.left != null) q.add(node.left);
+                if (node.right != null) q.add(node.right);
+            }
+            res.add(level_res);
+        }
+        return res;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class offer32_3按之字形顺序打印二叉树 {
+
+    public static void main(String[] args) {
+
+
+    }
+
+    public ArrayList<ArrayList<Integer>> Print(TreeNode pRoot) {
+
+        ArrayList<ArrayList<Integer>> ret = new ArrayList<>();
+        Queue<TreeNode> queue = new LinkedList<>();
+
+        if (pRoot == null) {
+            return new ArrayList<ArrayList<Integer>>();
+        } else {
+            queue.add(pRoot);
+        }
+
+        boolean flag = false;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            ArrayList<Integer> level_ret = new ArrayList<>();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level_ret.add(node.val);
+                if (node.left != null) queue.add(node.left);
+                if (node.right != null) queue.add(node.right);
+            }
+
+            if (flag) {
+                Collections.reverse(level_ret);
+            }
+            flag = !flag;
+            ret.add(level_ret);
+        }
+        return ret;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class offer38字符串全排列有重复 {
+
+    // 方法三，来自cyc2018
+    //https://github.com/CyC2018/CS-Notes/blob/master/notes/38.%20%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97.md
+    // 成员变量
+    private ArrayList<String> res = new ArrayList<String>();
+
+    public ArrayList<String> Permutation3(String str) {
+
+        char[] chars = str.toCharArray();
+        Arrays.sort(chars);
+        StringBuilder sb = new StringBuilder();
+        boolean[] hasUsed = new boolean[chars.length];
+        helper(chars, hasUsed, sb);
+        return res;
+    }
+
+    private void helper(char[] chars, boolean[] hasUsed, StringBuilder sb) {
+
+        if (sb.length() == chars.length) {
+            res.add(sb.toString());
+            return;
+        }
+
+        for (int i = 0; i < chars.length; i++) {
+
+            if (hasUsed[i]) continue;
+            if (i != 0 && chars[i] == chars[i - 1] && !hasUsed[i - 1]) continue; // 防止重复出现画图理解
+
+            hasUsed[i] = true;
+            sb.append(chars[i]);
+            helper(chars, hasUsed, sb);
+            sb.deleteCharAt(sb.length() - 1);
+            hasUsed[i] = false;
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+大小为 K 的最小堆
+复杂度：O(NlogK) + O(K)
+特别适合处理海量数据
+应该使用大顶堆来维护最小堆，而不能直接创建一个小顶堆并设置一个大小，企图让小顶堆中的元素都是最小元素。
+https://github.com/CyC2018/CS-Notes/blob/master/notes/40.%20%E6%9C%80%E5%B0%8F%E7%9A%84%20K%20%E4%B8%AA%E6%95%B0.md
+维护一个大小为 K 的最小堆过程如下：在添加一个元素之后，如果大顶堆的大小大于 K，那么需要将大顶堆的堆顶元素去除。
+ */
+import java.util.*;
+
+public class offer40最小的K个数 {
+
+    public static void main(String[] args) {
+        ArrayList<Integer> integers = new offer40最小的K个数().GetLeastNumbers_Solution(new int[]{2,5,3,7,10,1}, 3);
+        System.out.println(integers);
+    }
+
+    public ArrayList<Integer> GetLeastNumbers_Solution(int[] nums, int k) {
+
+        if(k > nums.length || k <= 0){
+            return new ArrayList<Integer>();
+        }
+
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((o1,o2) -> o2-o1);
+
+        for(int item : nums){
+            maxHeap.add(item);
+            if(maxHeap.size()>k) maxHeap.poll();
+        }
+        return new ArrayList(maxHeap);
+
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import java.util.Arrays;
+
+/*
+题目描述
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+例如输入数组 {3，32，321}，则打印出这三个数字能排成的最小数字为 321323。
+
+解题思路
+可以看成是一个排序问题，在比较两个字符串 S1 和 S2 的大小时，应该比较的是 S1+S2 和 S2+S1 的大小，
+如果 S1+S2 < S2+S1，那么应该把 S1 排在前面，否则应该把 S2 排在前面。
+ */
+public class offer45把数组排成最小的数 {
+
+    public static void main(String[] args) {
+        String s = new offer45把数组排成最小的数().PrintMinNumber(new int[]{3, 32, 321});
+        System.out.println(s);
+    }
+
+    public String PrintMinNumber(int[] numbers) {
+        if (numbers.length == 0 || numbers == null) return null;
+
+        String[] str = new String[numbers.length];
+        for (int i = 0; i < numbers.length; i++) {
+            str[i] = numbers[i] + "";
+        }
+
+        Arrays.sort(str, (o1, o2) -> (o1 + o2).compareTo(o2 + o1));
+        StringBuilder sb = new StringBuilder();
+        for (String item : str) {
+            sb.append(item);
+        }
+        return sb.toString();
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+/*
+
+题目描述
+给定一个数字，按照如下规则翻译成字符串：1 翻译成“a”，2 翻译成“b”... 26 翻译成“z”。一个数字有多种翻译可能，
+例如 12258 一共有 5 种，分别是 abbeh，lbeh，aveh，abyh，lyh。实现一个函数，
+用来计算一个数字有多少种不同的翻译方法。
+https://github.com/CyC2018/CS-Notes/blob/master/notes/46.%20%E6%8A%8A%E6%95%B0%E5%AD%97%E7%BF%BB%E8%AF%91%E6%88%90%E5%AD%97%E7%AC%A6%E4%B8%B2.md
+https://blog.csdn.net/er_ving/article/details/106635806
+状态转移方程：
+num[i] 和num[i-1] 不能合成一个字符 dp[i] = dp[i-1]
+num[i] 和num[i-1] 可以合成一个字符 dp[i] = dp[i-1] + dp[i-2]
+
+ */
+public class offer46把数字翻译成字符串 {
+
+    public static void main(String[] args) {
+        int i = new offer46把数字翻译成字符串().numDecodings("022");
+        System.out.println(i);
+    }
+
+    public int numDecodings(String s) {
+        if (s.length() == 0 || s == null) return 0;
+        int n = s.length();
+        int[] dp = new int[n + 1];
+        dp[0] = 1;
+        dp[1] = 1;
+        for (int i = 1; i < n; i++) {
+            int k = Integer.parseInt(s.substring(i - 1, i + 1));
+            //s.substring(i - 1, i + 1).compareTo("25") > 0
+            if (s.charAt(i - 1) == '0' || k > 26) {
+                dp[i + 1] = dp[i];
+            } else {
+                dp[i + 1] = dp[i] + dp[i - 1];
+            }
+        }
+
+        return dp[n];
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+
+https://blog.csdn.net/sinat_35261315/article/details/78241863
+蛮力法自然是两层for循环搞定，但是效率堪忧，需要想办法将复杂度调整到O(n)，也就是只遍历一遍字符串，
+这就需要记录在之前是否有遇到某个字符，可以使用unordered_map，不过这里因为仅仅是字符，
+那么创建一个大小为256的vector就可以了，反而显得节省空间。
+细想，每个不包括重复字符的子串肯定是一段连续的字符区域，头设定为front，尾设定为back。
+那么在仅仅遍历一遍的情况下，front肯定是不断改变了，back则就是当前遍历到的位置
+
+如果当前遍历到的这个字符在front后面没有出现过，那么front不需要移动，接着遍历后面的字符
+如果当前遍历到的这个字符在front后面出现过，那么从front到当前位置这个子串肯定就有重复的字符了，
+此时就需要改变front的位置到出现的那个字符后面的位置。也就是和当前遍历到的这个字符上一次出现的位置的下一个位置。
+在这个过程中，时刻更新最大的长度，因为front到back这段区域永远不可能有重复的字符，如果有，已经在第二步解决了
+ */
+
+import java.util.*;
+
+public class offer48最长不含重复字符的子字符串 {
+
+    public static void main(String[] args) {
+
+        int res = new offer48最长不含重复字符的子字符串().longestSubStringWithoutDuplication("abcabcbb");
+        System.out.println(res);
+    }
+
+    public int longestSubStringWithoutDuplication(String str) {
+
+
+        int[] ints = new int[256];
+        Arrays.fill(ints, -1);
+        int front = 0;
+        int max_length = 0;
+
+        for (int i = 0; i < str.length(); i++) {
+            char a = str.charAt(i);
+            if (ints[str.charAt(i)] != -1 && ints[a] >= front) {
+                front = ints[str.charAt(i)] + 1;
+            }
+            // 刷新字符串最后出现的位置
+            ints[str.charAt(i)] = i;
+            // 最大的长度
+            max_length = Math.max(max_length, i - front + 1);
+        }
+
+        return max_length;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer4二维数组中的查找 {
+
+    public boolean Find(int target, int[][] matrix) {
+
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return false;
+
+        int col = matrix[0].length - 1;
+        int row = 0;
+        while (row <= matrix.length && col >= 0) {
+
+            if (target == matrix[row][col]) {
+                return true;
+            } else if (target > matrix[row][col]) {
+                row++;
+            } else {
+                col--;
+            }
+        }
+        return false;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/51.%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9.md
+见 归并排序算法
+具体解析看这里：https://blog.csdn.net/abc7845129630/article/details/52740746
+ */
+public class offer51数组中的逆序对归并思想 {
+
+    public static void main(String[] args) {
+        int i = new offer51数组中的逆序对归并思想().InversePairs(new int[]{5, 6, 7, 8, 1, 2, 3, 4});
+        System.out.println(i);
+    }
+
+    // 成员变量
+    public int result = 0;
+    public int[] newArray;
+
+    public int InversePairs(int[] nums) {
+
+        newArray = new int[nums.length];
+        mergeSort(nums, 0, nums.length - 1, newArray);
+        return result;
+    }
+
+    public void mergeSort(int[] nums, int left, int right, int[] newArray) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(nums, left, mid, newArray);
+            mergeSort(nums, mid + 1, right, newArray);
+            mergeArray(nums, left, mid, right, newArray);
+        }
+    }
+
+    public void mergeArray(int[] nums, int left, int mid, int right, int[] newArray) {
+        int i = left, j = mid + 1;
+        int k = left;
+        for (int m = left; m <= right; m++) {
+            newArray[m] = nums[m];
+        }
+        while (i <= mid && j <= right) {
+            if (newArray[i] <= newArray[j]) {
+                nums[k++] = newArray[i++];
+            } else {
+                result += mid - i + 1;
+                nums[k++] = newArray[j++];
+            }
+        }
+        if (i <= mid) {
+            nums[k++] = newArray[i++];
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.TreeNode;
+
+public class offer54二叉查找树的第K个结点 {
+
+    public static void main(String[] args) {
+        TreeNode treeNode = DataTree.getTreeNode();
+        TreeNode treeNode1 = new offer54二叉查找树的第K个结点().KthNode(treeNode, 3);
+        System.out.println(treeNode1);
+
+    }
+
+    public TreeNode res;
+    public int flag = 0;
+
+    public TreeNode KthNode(TreeNode pRoot, int k) {
+        inOrder(pRoot, k);
+        return res;
+    }
+
+    public void inOrder(TreeNode node, int k) {
+        if (node == null) return;
+        inOrder(node.left, k);
+        flag++;
+        if (flag == k) res = node;
+        inOrder(node.right, k);
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+/*
+https://github.com/CyC2018/CS-Notes/blob/master/notes/56.%20%E6%95%B0%E7%BB%84%E4%B8%AD%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E6%95%B0%E5%AD%97.md
+题目描述
+一个整型数组里除了两个数字之外，其他的数字都出现了两次，找出这两个数。
+
+解题思路
+两个不相等的元素在位级表示上必定会有一位存在不同，将数组的所有元素异或得到的结果为不存在重复的两个元素异或的结果。
+
+diff &= -diff 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位，
+利用这一位就可以将两个元素区分开来。
+ */
+
+public class offer56数组中只出现一次的数字 {
+
+    public void FindNumsAppearOnce(int[] nums, int num1[], int num2[]) {
+        int diff = 0;
+        for (int item : nums) {
+            diff ^= item;
+        }
+
+        diff &= -diff;
+        for (int item : nums) {
+            if ((item & diff) == 0) {
+                num1[0] ^= item;
+            } else {
+                num2[0] ^= item;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer5替换空格 {
+
+    public static void main(String[] args) {
+
+        String a = "hello world to.";
+        StringBuffer b = new StringBuffer(a);
+        String s = new offer5替换空格().replaceSpace(b);
+        System.out.println(s);
+
+    }
+
+    public String replaceSpace(StringBuffer str) {
+
+        int p1 = str.length() - 1;
+        for (int i = 0; i <= p1; i++) {
+            if (str.charAt(i) == ' ') {
+                str.append("  ");
+            }
+        }
+
+        int p2 = str.length() - 1;
+
+        while (p1 >= 0 && p2 > p1) {
+            char c = str.charAt(p1--);
+            if (c == ' ') {
+                str.setCharAt(p2--, '0');
+                str.setCharAt(p2--, '2');
+                str.setCharAt(p2--, '%');
+            } else {
+                str.setCharAt(p2--, c);
+            }
+        }
+
+        return str.toString();
+
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer62圆圈中最后剩下的数 {
+
+    public static void main(String[] args) {
+        int i = new offer62圆圈中最后剩下的数().LastRemaining_Solution(5, 3);
+        System.out.println(i);
+    }
+
+    public int LastRemaining_Solution(int n, int m) {
+        if (n == 0)     /* 特殊输入的处理 */
+            return -1;
+        if (n == 1)     /* 递归返回条件 */
+            return 0;
+        return (LastRemaining_Solution(n - 1, m) + m) % n;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class offer6从尾到头打印链表 {
+
+    public static void main(String[] args) {
+        ListNode listNode = DataTree.getListNode();
+        ArrayList<Integer> integers = new offer6从尾到头打印链表().printListFromTailToHead(listNode);
+        System.out.println(integers);
+    }
+
+    ArrayList<Integer> ret = new ArrayList<>();
+
+    // 使用递归
+    public ArrayList<Integer> printListFromTailToHead1(ListNode listNode) {
+        ListNode dummyHead = new ListNode(-1);
+        dummyHead.next = listNode;
+        helper(dummyHead);
+        return ret;
+    }
+
+    public ListNode helper(ListNode listNode) {
+        if (listNode.next == null) return listNode;
+        ListNode node = helper(listNode.next);
+        ret.add(node.val);
+        return listNode;
+    }
+
+    //    =============
+    //递归思路二
+    public ArrayList<Integer> printListFromTailToHead(ListNode listNode) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        if (listNode != null) {
+            ret.addAll(printListFromTailToHead(listNode.next));
+            ret.add(listNode.val);
+        }
+        return ret;
+    }
+
+    //使用头插法 重构链表
+    public ArrayList<Integer> printListFromTailToHead2(ListNode listNode) {
+
+
+
+        ListNode dummyHead = new ListNode(-1);
+        while (listNode != null) {
+            ListNode memo = listNode.next;
+            listNode.next = dummyHead.next;
+            dummyHead.next = listNode;
+            listNode = memo;
+        }
+        // 构建 ArrayList
+        ArrayList<Integer> ret = new ArrayList<>();
+        dummyHead = dummyHead.next;
+        while (dummyHead != null) {
+            ret.add(dummyHead.val);
+            dummyHead = dummyHead.next;
+        }
+        return ret;
+    }
+
+
+
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.HashMap;
+
+public class offer7前序中序重建二叉树 {
+
+    // 新建一个map存储中序遍历的结果
+    HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+    int[] preorder;
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+
+        this.preorder = preorder;
+        for (int i = 0; i < preorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+        return recursive(0,0,inorder.length-1);
+    }
+
+    private TreeNode recursive(int pre_root_idx, int in_left_idx, int in_right_idx) {
+
+        // base case
+        if(in_left_idx > in_right_idx) return null;
+
+        TreeNode root = new TreeNode(preorder[pre_root_idx]);
+
+        int idx = map.get(preorder[pre_root_idx]);
+
+        // 进行递归，需要画图理解
+        root.left = recursive(pre_root_idx + 1, in_left_idx, idx - 1);
+
+        root.right = recursive(pre_root_idx + idx - 1 - in_left_idx + 1 + 1, idx + 1, in_right_idx);
+
+        // 最后返回的是root
+        return root;
+    }
+
+    public static void main(String[] args) {
+        int[] a = new int[]{1,2,4,5,3};
+        int[] b = new int[]{4,2,5,1,3};
+
+        TreeNode treeNode = new offer7前序中序重建二叉树().buildTree(a, b);
+        System.out.println(treeNode);
+
+
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+public class offer8二叉树的下一个节点 {
+
+    class TreeLinkNode {
+
+        int val;
+        TreeLinkNode left = null;
+        TreeLinkNode right = null;
+        TreeLinkNode next = null; // 指向父结点的指针
+
+        TreeLinkNode(int val) {
+            this.val = val;
+        }
+    }
+
+    public TreeLinkNode GetNext(TreeLinkNode pNode) {
+
+        if (pNode.right != null) {
+            // 找到最左侧的节点
+            TreeLinkNode node = pNode.right;
+            while (node.left != null) {
+                node = node.left;
+            }
+            return node;
+        } else {
+            // 找到父节点，并且当前节点是父节点的左孩子
+
+            while (pNode.next != null) {
+                TreeLinkNode parent = pNode.next;
+                if (parent.left == pNode) {
+                    return parent;
+                }
+                pNode = pNode.next;
+            }
+        }
+        return null;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+//当stack2中不为空时，在stack2中的栈顶元素是最先进入队列的元素，
+//        直接出栈。如果stack2为空时，我们把stack1中的元素逐个
+//        弹出并压入stack2。由于先进入队列的元素被压到stack1的底端，
+//        经过弹出和压入之后就处于stack2的顶端了，又可以直接出栈
+public class offer9用两个栈实现队列 {
+
+    private Stack<Integer> p1 = new Stack<>();
+    private Stack<Integer> p2 = new Stack<>();
+
+    /**
+     * 添加元素到队尾
+     */
+    public void push(int x) {
+        p1.push(x);
+    }
+
+    /**
+     * 删除队头的元素并返回
+     */
+    public int pop() throws Exception {
+        if(p2.isEmpty()){
+            peek();
+            return p2.pop();
+        }else{
+            return p2.pop();
+        }
+
+
+    }
+
+    /**
+     * 返回队头元素
+     */
+    public int peek() throws Exception {
+        if(!p2.isEmpty()){
+            return p2.peek();
+        }
+
+        while (!p1.isEmpty()) {
+            p2.push(p1.pop());
+        }
+        if (p2.isEmpty()) {
+            throw new Exception("queue is empty");
+        }
+        return p2.peek();
+    }
+
+    /**
+     * 判断队列是否为空
+     */
+    public boolean empty() {
+        return p1.isEmpty() && p2.isEmpty();
+    }
+
+}
+
+// pop 麻烦点，把队列只poll到最后两个，然后记录栈顶元素，然后poll出去
+class 用队列实现栈 {
+
+    Queue<Integer> q = new LinkedList<Integer>();
+    int top_elem = 0;
+
+    /**
+     * 添加元素到栈顶
+     */
+    public void push(int x) {
+        q.offer(x);
+        top_elem = x;
+    }
+
+    /**
+     * 删除栈顶的元素并返回
+     */
+    public int pop() {
+        int size = q.size();
+        while (size > 2) {
+            q.offer(q.poll());
+            size--;
+        }
+        top_elem = q.peek();
+        q.offer(q.poll());
+        return q.poll();
+    }
+
+    /**
+     * 返回栈顶元素
+     */
+    public int top() {
+        return top_elem;
+    }
+
+    /**
+     * 判断栈是否为空
+     */
+    public boolean empty() {
+        return q.isEmpty();
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.offerCyc2018;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+import com.kirin.LeetCode.Node;
+
+import java.util.*;
+import java.util.LinkedList;
+import java.text.SimpleDateFormat;
+import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+class tmp {
+
+
+}
