@@ -1,0 +1,500 @@
+
+
+Heap.java
+tmp.java
+冒泡排序.java
+堆排序.java
+归并排序2.java
+快速排序.java
+插入排序.java
+选择排序.java
+
+
+
+===================
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+
+import java.util.Arrays;
+
+public class Heap {
+    private int[] arr;
+    private int capacity;
+    private int n;
+
+    public Heap(int count) {
+        capacity = count;
+        arr = new int[capacity + 1];
+        n = 0;
+    }
+
+    public void insert(int value) {
+        if (n >= capacity) {
+            if (value < arr[1]) {
+                arr[1] = value;
+                heapify(1, n);
+                return;
+            } else {
+                return;
+            }
+        }
+
+        n++;
+        arr[n] = value;
+        int i = n;
+        while (i / 2 > 0 && arr[i] > arr[i / 2]) {
+            swap(arr, i, i / 2);
+            i = i / 2;
+        }
+    }
+
+    public void removeTopElement() {
+        if (n == 0) {
+            return;
+        }
+
+
+        arr[1] = arr[n];
+        n--;
+        heapify(1, n);
+    }
+
+    public void heapify(int index, int n) {
+        while (true) {
+            int maxValueIndex = index;
+
+            if (2 * index <= n && arr[index] < arr[2 * index]) {
+                maxValueIndex = 2 * index;
+            }
+
+            if (2 * index + 1 <= n && arr[maxValueIndex] < arr[2 * index + 1]) {
+                maxValueIndex = 2 * index + 1;
+            }
+
+
+            if (maxValueIndex == index) break;
+
+            swap(arr, index, maxValueIndex);
+            index = maxValueIndex;
+        }
+    }
+
+    public void swap(int[] arr, int i, int j) {
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+
+    public static void main(String[] args) {
+        Heap heap = new Heap(6);
+//        heap.insert(3);
+//        heap.insert(7);
+//        heap.insert(2);
+//        heap.insert(1);
+//
+//        heap.removeTopElement();
+//        heap.removeTopElement();
+//        heap.insert(1);
+//
+//        System.out.println(heap.arr);
+        // topK 问题
+        int[] a = {3, 7, 2, 6, 5, 4};
+//        for (int i : a) {
+//            heap.insert(i);
+//        }
+//        int[] res = Arrays.copyOfRange(heap.arr, 1, 4);
+//        System.out.println(res);
+
+        // 堆排序
+        for (int i : a){
+            heap.insert(i);
+        }
+        int size = heap.n;
+        while(size > 1){
+            heap.swap(heap.arr,1,size);
+            size--;
+            heap.heapify(1,size);
+        }
+
+        System.out.println(heap.arr);
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.*;
+
+
+class tmp {
+
+
+}
+
+
+class 前序中序重建二叉树 {
+
+    HashMap<Integer, Integer> map = new HashMap<>();
+    int[] preOrder;
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        this.preOrder = preorder;
+        for (int i = 0; i < preorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+        return recurve(0, 0, preorder.length - 1);
+    }
+
+    public TreeNode recurve(int pre_root_idx, int in_left_idx, int in_right_idx) {
+        if (in_left_idx > in_right_idx) {
+            return null;
+        }
+        TreeNode root = new TreeNode(preOrder[pre_root_idx]);
+
+        // 得到前序遍历的root在中序遍历中的下标
+        int idx = map.get(preOrder[pre_root_idx]);
+
+        root.left = recurve(pre_root_idx + 1, in_left_idx, idx - 1);
+        root.right = recurve(pre_root_idx + idx - 1 - in_left_idx + 1 + 1, idx + 1, in_right_idx);
+
+        return root;
+
+    }
+
+    public static void main(String[] args) {
+        int[] a = new int[]{1, 2, 4, 5, 3};
+        int[] b = new int[]{4, 2, 5, 1, 3};
+
+        TreeNode treeNode = new 前序中序重建二叉树().buildTree(a, b);
+        System.out.println(treeNode);
+
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+/*
+https://github.com/iamshuaidi/algo-basic/blob/master/%E5%AD%A6%E7%AE%97%E6%B3%95/%E5%BF%85%E5%AD%A6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%88%AB%E7%BF%BB%E4%BA%86%EF%BC%8C%E7%A8%8B%E5%BA%8F%E5%91%98%E5%BF%85%E5%AD%A6%E5%8D%81%E5%A4%A7%E7%BB%8F%E5%85%B8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%8C%E7%9C%8B%E8%BF%99%E7%AF%87%E5%B0%B1%E5%A4%9F%E4%BA%86.md
+把第一个元素与第二个元素比较，如果第一个比第二个大，则交换他们的位置
+这样一趟比较交换下来之后，排在最右的元素就会是最大的数。
+
+性质：1、时间复杂度：O(n2) 2、空间复杂度：O(1) 3、稳定排序 4、原地排序
+ */
+
+/*
+冒泡排序的优化三个优化方案看一下
+https://blog.csdn.net/hansionz/article/details/80822494
+ */
+public class 冒泡排序 {
+
+    public static int[] bubbleSort(int[] arr) {
+
+        if (arr == null || arr.length < 2) {
+            return arr;
+        }
+
+        int n = arr.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    int tmp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = tmp;
+                }
+            }
+        }
+        return arr;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+/*
+拜托，别再问我什么是堆了.pdf
+码海的文章
+堆的插入，
+堆顶元素的删除
+堆排序
+https://blog.csdn.net/u010452388/article/details/81283998
+ */
+public class 堆排序 {
+
+    public static void main(String[] args) {
+
+        int[] arr = new int[]{3, 7, 2, 1, 4, 5};
+        heapSort(arr);
+        for (int i : arr) {
+            System.out.println(i);
+        }
+    }
+
+    public static void heapSort(int[] arr) {
+        // 把无序的数组变为堆（堆化）
+        heapInsert(arr);
+
+        // 把堆顶元素交换到最后位置，并进行堆化
+        int size = arr.length;
+        while (size > 1) {
+            swap(arr, 0, size - 1);
+            size--;
+            heapify(arr, 0, size );
+        }
+    }
+
+    // 构造大根堆（通过新插入的数上升）
+    public static void heapInsert(int[] arr) {
+
+        for (int i = 1; i < arr.length; i++) {
+
+            while ((i - 1) / 2 >= 0 && arr[i] > arr[(i - 1) / 2]) {
+                swap(arr, i, (i - 1) / 2);
+                i = (i - 1) / 2;
+            }
+        }
+    }
+
+    // 构造大顶堆，从上到下
+    public static void heapify(int[] arr, int index, int n) {
+        while (true) {
+
+            int maxValueIndex = index;
+            if (2 * index + 1 <= n && arr[index] < arr[2 * index + 1]) {
+                maxValueIndex = 2 * index + 1;
+            }
+            if (2 * index + 2 <= n && arr[maxValueIndex] < arr[2 * index + 2]) {
+                maxValueIndex = 2 * index + 2;
+            }
+
+            if (maxValueIndex == index) break;
+
+            swap(arr, index, maxValueIndex);
+            index = maxValueIndex;
+        }
+    }
+
+    public static void swap(int[] arr, int i, int j) {
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+//https://mp.weixin.qq.com/s/gIUclNLM9bwq3vmmUpcx3w
+
+public class 归并排序2 {
+
+    public static void main(String[] args) {
+
+        int[] randomArray = new int[]{5, 3, 1, 7};
+
+//        for (int i : randomArray) {
+//            System.out.print(i);
+//        }
+
+        new 归并排序2().MergeSort(randomArray);
+
+        for (int i : randomArray) {
+            System.out.print(i);
+        }
+    }
+
+    public void MergeSort(int[] array) {
+        if (array == null || array.length <= 1) {
+            return;
+        }
+        int[] newArray = new int[array.length];
+        mergeSort(array, 0, array.length - 1, newArray);
+    }
+
+    private void mergeSort(int[] array, int left, int right, int[] newArray) {
+        // base case
+        if (left >= right) {
+            return;
+        }
+
+        // 「分」
+        int mid = left + (right - left) / 2;
+
+        // 「治」
+        mergeSort(array, left, mid, newArray);
+        mergeSort(array, mid + 1, right, newArray);
+
+        // 辅助的 array
+        for (int i = left; i <= right; i++) {
+            newArray[i] = array[i];
+        }
+
+        // 「合」
+        int i = left;
+        int j = mid + 1;
+        int k = left;
+        while (i <= mid && j <= right) {
+            if (newArray[i] <= newArray[j]) { // 等号会影响算法的稳定性
+                array[k++] = newArray[i++];
+            } else {
+                array[k++] = newArray[j++];
+            }
+        }
+        while (i <= mid) {
+            array[k++] = newArray[i++];
+        }
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+/*
+https://github.com/iamshuaidi/algo-basic/blob/master/%E5%AD%A6%E7%AE%97%E6%B3%95/%E5%BF%85%E5%AD%A6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%88%AB%E7%BF%BB%E4%BA%86%EF%BC%8C%E7%A8%8B%E5%BA%8F%E5%91%98%E5%BF%85%E5%AD%A6%E5%8D%81%E5%A4%A7%E7%BB%8F%E5%85%B8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%8C%E7%9C%8B%E8%BF%99%E7%AF%87%E5%B0%B1%E5%A4%9F%E4%BA%86.md
+
+小白：那倒不是，快速排序的平均时间复杂度也是O(nlogn)，不过他不需要像归并排序那样，
+还需要一个临时的数组来辅助排序，这可以节省掉一些空间的消耗，而且他不像归并排序那样，
+把两部分有序子数组汇总到临时数组之后，还得在复制回源数组，这也可以节省掉很多时间。
+
+
+ */
+
+public class 快速排序 {
+    public static int[] quickSort(int[] arr, int left, int right) {
+        if (left < right) {
+            //获取中轴元素所处的位置
+            int mid = partition(arr, left, right);
+            //进行分割
+            arr = quickSort(arr, left, mid - 1);
+            arr = quickSort(arr, mid + 1, right);
+        }
+        return arr;
+    }
+
+    private static int partition(int[] arr, int left, int right) {
+        //选取中轴元素
+        int pivot = arr[left];
+        int i = left + 1;
+        int j = right;
+        while (true) {
+            // 向右找到第一个小于等于 pivot 的元素位置
+            while (i <= j && arr[i] <= pivot) i++;
+            // 向左找到第一个大于等于 pivot 的元素位置
+            while (i <= j && arr[j] >= pivot) j--;
+            if (i >= j)
+                break;
+            //交换两个元素的位置，使得左边的元素不大于pivot,右边的不小于pivot
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        arr[left] = arr[j];
+        // 使中轴元素处于有序的位置
+        arr[j] = pivot;
+        return j;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+public class 插入排序 {
+
+    public static int[] insertSort(int[] arr) {
+        if (arr == null || arr.length < 2) return arr;
+
+        int n = arr.length;
+
+        for (int i = 1; i < n; i++) {
+            int tmp = arr[i];
+            int k = i - 1;
+            while (k >= 0 && arr[k] > tmp)
+                k--;
+
+            for (int j = i; j > k + 1; j--) {
+                arr[j] = arr[j - 1];
+            }
+            arr[k + 1] = tmp;
+        }
+        return arr;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.sortAlgrithm;
+
+/*
+https://github.com/iamshuaidi/algo-basic/blob/master/%E5%AD%A6%E7%AE%97%E6%B3%95/%E5%BF%85%E5%AD%A6%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E5%88%AB%E7%BF%BB%E4%BA%86%EF%BC%8C%E7%A8%8B%E5%BA%8F%E5%91%98%E5%BF%85%E5%AD%A6%E5%8D%81%E5%A4%A7%E7%BB%8F%E5%85%B8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%8C%E7%9C%8B%E8%BF%99%E7%AF%87%E5%B0%B1%E5%A4%9F%E4%BA%86.md
+
+找到数组中最小的元素，用min指向它，把它和第一个元素交换
+第二次循环，找到最小的元素，把它和第二个位置的元素交换
+
+性质：1、时间复杂度：O(n2) 2、空间复杂度：O(1) 3、非稳定排序 4、原地排序
+ */
+public class 选择排序 {
+
+    public static int[] selectSort(int[] a) {
+        int n = a.length;
+        for (int i = 0; i < n - 1; i++) {
+            int min = i;
+            for (int j = i + 1; j < n; j++) {
+                if (a[j] < a[min]) min = j;
+            }
+
+            // 交换
+            int tmp = a[i];
+            a[i] = a[min];
+            a[min] = tmp;
+        }
+
+        return a;
+    }
+
+}
+
+
