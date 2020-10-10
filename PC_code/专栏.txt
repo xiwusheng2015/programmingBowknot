@@ -1,0 +1,1762 @@
+
+
+Koko吃香蕉二分leetcode875.java
+LRU算法.java
+Solution.java
+tmp.java
+二叉堆优先级队列.java
+二叉搜索树.java
+凑硬币.java
+判断回文链表leetcod234.java
+单调栈下一个最大数.java
+去除有序数组的重复元素.java
+合法括号判定.java
+字典序的第k小数字leetcode440.java
+寻找素数.java
+括号生成回溯法.java
+接雨水双指针.java
+无序数组中第K大的元素.java
+最长公共子序列.java
+最长回文子串.java
+最长递增子序列.java
+栈实现队列.java
+正则表达式DP.java
+滑动窗口最大值单调队列leetcode239.java
+目标和leetcode494.java
+编辑距离.java
+股票.java
+背包子集.java
+背包完全背包.java
+背包问题.java
+
+
+==============
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+https://labuladong.github.io/ebook/%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E7%B3%BB%E5%88%97/koko%E5%81%B7%E9%A6%99%E8%95%89.html#%E5%A6%82%E4%BD%95%E8%BF%90%E7%94%A8%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95
+
+
+
+ */
+public class Koko吃香蕉二分leetcode875 {
+
+    int minEatingSpeed(int[] piles, int H) {
+        // 套用搜索左侧边界的算法框架
+        // left和right表示每小时吃东西的速度
+        int left = 1, right = getMax(piles) + 1;
+        while (left < right) {
+            // 防止溢出
+            int mid = left + (right - left) / 2;
+            if (canFinish(piles, mid, H)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+
+    // 时间复杂度 O(N)
+    boolean canFinish(int[] piles, int speed, int H) {
+        int time = 0;
+        for (int n : piles) {
+            time += timeOf(n, speed);
+        }
+        return time <= H;
+    }
+
+    int timeOf(int n, int speed) {
+        return (n / speed) + ((n % speed > 0) ? 1 : 0);
+    }
+
+    int getMax(int[] piles) {
+        int max = 0;
+        for (int n : piles)
+            max = Math.max(n, max);
+        return max;
+    }
+}
+
+
+class 在D天内送达包裹的能力_二分_力扣1011 {
+
+    public static void main(String[] args) {
+
+        int[] w = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int i = new 在D天内送达包裹的能力_二分_力扣1011().shipWithinDays(w, 5);
+        System.out.println(i);
+    }
+
+
+    // 寻找左侧边界的二分查找
+    int shipWithinDays(int[] weights, int D) {
+
+        //可能的最小值,不然可定有些货物不能上船
+        int left = getMax(weights);
+        //可能的最大值
+        int right = getSum(weights) + 1;
+
+        // 二分查找，左闭右开
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (canFinish(weights, D, mid)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+
+    private boolean canFinish(int[] w, int D, int cap) {
+        // 给定天数D，和特定的船的装载能力cap，判断D天内能否运输完
+        int i = 0;
+        for (int day = 0; day < D; day++) {
+            // 当天的船可以装载的数量
+            int maxCap = cap;
+            // 只要还有空位就一直装下一个位置的w[i]
+            while ((maxCap -= w[i]) >= 0) {
+                i++;
+
+                // 判断是否在D天内，装到了最后一个w[i]
+                if (i == w.length) return true;
+            }
+        }
+        return false;
+
+    }
+
+    private int getSum(int[] weights) {
+        int res = 0;
+        for (int tmp : weights) {
+            res += tmp;
+        }
+        return res;
+    }
+
+    private int getMax(int[] weights) {
+        int res = 0;
+        for (int tmp : weights) {
+            res = Math.max(tmp, res);
+        }
+        return res;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+https://labuladong.github.io/ebook/%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E7%B3%BB%E5%88%97/LRU%E7%AE%97%E6%B3%95.html#%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0
+
+ */
+
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class LRU算法 {
+
+
+    class Node {
+        public int key, val;
+        public Node next, pre;
+
+        public Node() {
+        }
+
+        public Node(int k, int v) {
+            this.key = k;
+            this.val = v;
+        }
+    }
+
+    private Node dummyHead = new Node(), dummyTail = new Node();
+
+    private int capacity, size;
+
+    private Map<Integer, Node> map = new HashMap<>();
+
+    public LRU算法(int capacity) {
+        dummyHead.next = dummyTail;
+        dummyTail.pre = dummyHead;
+        this.capacity = capacity;
+    }
+
+    public int get(int key) {
+        Node node = map.get(key);
+        if (node == null) {
+            return -1;
+        }
+        updateState(node);
+        return node.val;
+    }
+
+    public void put(int key, int value) {
+        Node node = map.get(key);
+        if (node != null) {
+            node.val = value;
+            updateState(node);
+        } else {
+            if (size < capacity) {
+                size++;
+            } else {
+                //删除尾部
+                Node delNode = dummyTail.pre;
+                map.remove(delNode.key);
+                del(delNode);
+            }
+
+            Node newNode = new Node(key, value);
+            add(newNode);
+            map.put(key, newNode);
+        }
+    }
+
+    /**
+     * 调整节点的顺序
+     */
+    private void updateState(Node node) {
+        del(node);
+        add(node);
+    }
+
+    /**
+     * 将节点添加到虚拟头节点之后
+     */
+    private void add(Node node) {
+        Node originHead = dummyHead.next;
+        dummyHead.next = node;
+        node.pre = dummyHead;
+        node.next = originHead;
+        originHead.pre = node;
+    }
+
+    /**
+     * 删除某个节点
+     */
+    private void del(Node node) {
+        node.pre.next = node.next;
+        node.next.pre = node.pre;
+        node.pre = null;
+        node.next = null;
+    }
+}
+
+
+class LRUCache<K, V> extends LinkedHashMap<K, V> {
+    private final int CACHE_SIZE;
+
+    public LRUCache(int cacheSize) {
+        super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        this.CACHE_SIZE = cacheSize;
+    }
+
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > CACHE_SIZE;
+    }
+
+
+    public static void main(String[] args) {
+        LRUCache<String, Integer> LRU = new LRUCache<>(3);
+        LRU.put("a", 1);
+        LRU.put("b", 1);
+        LRU.put("c", 1);
+        LRU.put("d", 1);
+        System.out.printf("");
+
+
+    }
+
+}
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+
+import java.util.*;
+
+
+public class Solution {
+
+
+}
+
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import com.kirin.LeetCode.ListNode;
+import com.kirin.LeetCode.TreeNode;
+
+import java.util.*;
+
+
+class tmp {
+
+    public static void main(String[] args) {
+        int i = new tmp().superEggDrop(2, 100);
+        System.out.println(i);
+    }
+
+    private HashMap<String, Integer> memo = new HashMap<>();
+
+    public int superEggDrop(int K, int N) {
+
+
+        int res = helper(K, N);
+        return res;
+
+    }
+
+    public int helper(int K, int N) {
+        if (K == 1) return N;
+        if (N == 0) return 0;
+
+        String str = String.valueOf(K)+","+String.valueOf(N);
+
+        if(memo.containsKey(str)){
+            return memo.get(str);
+        }
+
+        int res = Integer.MAX_VALUE;
+        for(int i =1;i<N+1;i++){
+            res = Math.min(res,Math.max(helper(K,N-i),helper(K-1,i-1))+1);
+        }
+        memo.put(str,res);
+
+        return res;
+
+    }
+
+}
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+public class 二叉堆优先级队列 {
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import com.kirin.LeetCode.TreeNode;
+
+public class 二叉搜索树 {
+
+
+    // 判断二叉搜索树
+    boolean isValidBST(TreeNode root) {
+        return isValidBST(root, null, null);
+    }
+
+    boolean isValidBST(TreeNode root, TreeNode min, TreeNode max) {
+        if (root == null) return true;
+        if (min != null && root.val <= min.val) return false;
+        if (max != null && root.val >= max.val) return false;
+        return isValidBST(root.left, min, root)
+                && isValidBST(root.right, root, max);
+    }
+
+    // 元素是否在二叉搜索树中
+    boolean isInBST(TreeNode root, int target) {
+        if (root == null) return false;
+        if (root.val == target)
+            return true;
+        if (root.val < target)
+            return isInBST(root.right, target);
+        if (root.val > target)
+            return isInBST(root.left, target);
+        // root 该做的事做完了，顺带把框架也完成了，妙
+
+        // 最后一行不会被执行到
+        return false;
+    }
+
+    //二、在 BST 中插入一个数
+    TreeNode insertIntoBST(TreeNode root, int val) {
+        // 找到空位置插入新节点
+        if (root == null) return new TreeNode(val);
+        // if (root.val == val)
+        //     BST 中一般不会插入已存在元素
+        if (root.val < val)
+            root.right = insertIntoBST(root.right, val);
+        if (root.val > val)
+            root.left = insertIntoBST(root.left, val);
+        return root;
+    }
+
+
+    // 三、在 BST 中删除一个数
+    TreeNode deleteNode(TreeNode root, int key) {
+        if (root == null) return null;
+        if (root.val == key) {
+            // 这两个 if 把情况 1 和 2 都正确处理了
+            if (root.left == null) return root.right;
+            if (root.right == null) return root.left;
+            // 处理情况 3
+            TreeNode minNode = getMin(root.right);
+            root.val = minNode.val;
+            root.right = deleteNode(root.right, minNode.val);
+        } else if (root.val > key) {
+            root.left = deleteNode(root.left, key);
+        } else if (root.val < key) {
+            root.right = deleteNode(root.right, key);
+        }
+        return root;
+    }
+
+    TreeNode getMin(TreeNode node) {
+        // BST 最左边的就是最小的
+        while (node.left != null) node = node.left;
+        return node;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+//https://mp.weixin.qq.com/s?__biz=MzI5MTU1MzM3MQ==&mid=2247483932&idx=1&sn=d9cd9d5a5ebf5f31e23f11c82b6465f1&scene=21#wechat_redirect
+
+// https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%AF%A6%E8%A7%A3%E8%BF%9B%E9%98%B6.html
+题目：给定不同面额的硬币 coins 和一个总金额 amount。编写一个函数来计算可以凑成总金额所需的最少的硬币个数。
+如果没有任何一种硬币组合能组成总金额，返回 -1
+
+我们定义 DP(i) 为凑够零钱 i 需要的最小值，状态转移方程如下
+DP[i] =  min{ DP[ i - coins[j] ] + 1 } = min{ DP[ i - coins[j] ]} + 1,
+其中 j 的取值为 0 到 coins 的大小，i 代表取了 coins[j] 这一枚硬币。
+
+ */
+public class 凑硬币 {
+
+    public static void main(String[] args) {
+
+        int amount = 5;
+        int[] coins = {2,3,5};
+        int i = exchangeDP(amount, coins);
+        System.out.println(i);
+    }
+
+    // 动态规划求解
+    private static int exchangeDP(int amount, int[] coins) {
+        int[] dp = new int[amount + 1];
+        // 初始化每个值为 amount+1，这样当最终求得的 dp[amount] 为 amount+1 时，说明问题无解
+        for (int i = 0; i < amount + 1; i++) {
+            dp[i] = amount + 1;
+        }
+
+        // 0 硬币本来就没有，所以设置成 0
+        dp[0] = 0;
+
+        for (int i = 1; i < amount + 1; i++) {
+            for (int j = 0; j < coins.length; j++) {
+                if (i >= coins[j]) {
+                    // 这里的dp[i]表示一个无穷大，只是一个辅助功能
+                    dp[i] = Math.min(dp[i- coins[j]], dp[i]) + 1;
+                }
+            }
+        }
+
+        if (dp[amount] == amount + 1) {
+            return -1;
+        }
+        return dp[amount];
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+/*
+https://labuladong.github.io/ebook/%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E7%B3%BB%E5%88%97/%E5%88%A4%E6%96%AD%E5%9B%9E%E6%96%87%E9%93%BE%E8%A1%A8.html
+ */
+// 先找到中间节点，反转后面的链表，从两头向中间遍历，恢复链表
+public class 判断回文链表leetcod234 {
+
+    public static void main(String[] args) {
+
+        ListNode listNode = DataTree.getListNode();
+        boolean palindrome = new 判断回文链表leetcod234().isPalindrome(listNode);
+        System.out.println(palindrome);
+    }
+
+    boolean isPalindrome(ListNode head) {
+
+        if (head == null) return false;
+        if (head.next == null) return false;
+
+        // p q的目的是不修参数
+        ListNode p = head, q = head;
+
+        // 通过双指针获得中间节点的位置
+        ListNode slow, fast;
+        slow = fast = head;
+        boolean flag = true;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (flag && fast.next == null) {
+                p = slow;
+                q = fast;
+                flag = false;
+            }
+            if (flag && fast.next.next == null) {
+                p = slow;
+                q = fast.next;
+                flag = false;
+            }
+        }
+        if (fast != null) {
+            // 奇数长度
+            slow = slow.next;
+        }
+
+        // 从slow所在的中间节点位置反转链表
+        ListNode last = reverse(slow);
+        while (last != null) {
+            if (head.val != last.val) {
+                // 恢复链表原来的结构
+                p.next = reverse(q);
+
+                return false;
+            }
+            head = head.next;
+            last = last.next;
+        }
+
+        // 恢复链表原来的结构
+        p.next = reverse(q);
+
+        return true;
+
+    }
+
+    ListNode reverse(ListNode root) {
+
+        ListNode pre = null;
+        ListNode cur = root;
+        while (cur != null) {
+
+            ListNode tmp = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = tmp;
+        }
+        return pre;
+    }
+}
+
+// 递归的方法
+class 判断回文链表leetcod234_2 {
+    // 左侧指针
+    ListNode left;
+
+    boolean isPalindrome(ListNode head) {
+        left = head;
+        return traverse(head);
+    }
+
+    boolean traverse(ListNode right) {
+        if (right == null) return true;
+        boolean res = traverse(right.next);
+        // 后序遍历代码
+        res = res && (right.val == left.val);
+        left = left.next;
+        return res;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Stack;
+
+/*
+https://labuladong.github.io/ebook/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%B3%BB%E5%88%97/%E5%8D%95%E8%B0%83%E6%A0%88.html
+
+ */
+public class 单调栈下一个最大数 {
+
+    int[] nextGreaterElement(int[] nums) {
+        int[] ans = new int[nums.length]; // 存放答案的数组
+        Stack<Integer> s = new Stack<>();
+
+        for (int i = nums.length - 1; i >= 0; i--) {// 倒着往栈里放
+            while (!s.isEmpty() && s.peek() <= nums[i]) {
+                s.pop();// 矮个起开，反正也被挡着了。。。
+            }
+            ans[i] = s.empty() ? -1 : s.peek();// 这个元素身后的第一个高个
+            s.push(nums[i]);// 进队，接受之后的身高判定吧！
+        }
+
+        return ans;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import com.kirin.LeetCode.ListNode;
+
+public class 去除有序数组的重复元素 {
+
+    public static void main(String[] args) {
+
+        int[] a = new int[]{1, 1, 2, 2, 3};
+        int i = removeDuplicates(a);
+        System.out.println(i);
+    }
+
+    static int removeDuplicates(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+        int slow = 0, fast = 1;
+        while (fast < n) {
+            if (nums[fast] != nums[slow]) {
+                slow++;
+                // 维护 nums[0..slow] 无重复
+                nums[slow] = nums[fast];
+            }
+            fast++;
+        }
+        // 长度为索引 + 1
+        return slow + 1;
+    }
+}
+
+class 去除有序链表的重复元素 {
+
+    ListNode deleteDuplicates(ListNode head) {
+        if (head == null) return null;
+        ListNode slow = head, fast = head.next;
+        while (fast != null) {
+            if (fast.val != slow.val) {
+                // nums[slow] = nums[fast];
+                slow.next = fast;
+                // slow++;
+                slow = slow.next;
+            }
+            // fast++
+            fast = fast.next;
+        }
+        // 断开与后面重复元素的连接
+        slow.next = null;
+        return head;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Stack;
+
+public class 合法括号判定 {
+
+    boolean isValid(String str) {
+        Stack<Character> left = new Stack<>();
+
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+
+            if (c == '(' || c == '{' || c == '[')
+                left.push(c);
+            else // 字符 c 是右括号
+                if (!left.empty() && leftOf(c) == left.peek())
+                    left.pop();
+                else
+                    // 和最近的左括号不匹配
+                    return false;
+        }
+        // 是否所有的左括号都被匹配了
+        return left.empty();
+    }
+
+    char leftOf(char c) {
+        if (c == '}') return '{';
+        if (c == ')') return '(';
+        return '[';
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.*;
+
+/*
+ 原文链接：https://blog.csdn.net/FJJ543/java/article/details/81908992
+可以理解为完全10叉树
+然后进行前序遍历
+
+3）那么，难点就变成了 计算出同一层两个相邻的节点的子节点的个数，也就是代码中的steps
+
+  3.1）当前节点为 curr  （从curr = 1 开始），则同一层的下一个节点为 curr+1;
+
+  3.2)计算节点 curr到节点curr+1之间的子节点个数steps
+
+     3.2.1)如果子节点个数 大于 k，说明第k小的树一定在子节点中，
+
+              继续向下一层寻找：curr *=10;
+
+              k -= 1;（原因：向下一层寻找，肯定要减少前面的父节点，即 在上一层中的第k个数，在下一层中是第k-1个数）
+
+     3.2.2)如果子节点个数 小于或者等于 k，说明第k小的树不在子节点中，
+
+              继续向同一层下一个节点寻找：curr +=1;
+
+              k -= steps;（原因：向下一层寻找，肯定要减少前面的所有的字节点）
+
+   以此类推，直到k为0推出循环，此时cur即为所求。
+ */
+public class 字典序的第k小数字leetcode440 {
+
+    public static int findKthNumber(int n, int k) {
+        int curr = 1;
+        k = k - 1;
+        while (k > 0) {
+
+            // 计算出steps的长度
+            long steps = 0, first = curr, last = curr + 1;
+            while (first <= n) {
+                steps += Math.min((long) n + 1, last) - first;
+                first *= 10;
+                last *= 10;
+            }
+            // 要找第K个元素，k和step比较一下，然后进入下一轮寻找，
+            if (steps <= k) {
+                curr += 1;
+                k -= steps;
+            } else {
+                curr *= 10;
+                k -= 1;
+            }
+        }
+        return curr;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int k = sc.nextInt();
+        System.out.println(findKthNumber(n, k));
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Arrays;
+
+public class 寻找素数 {
+
+    public static void main(String[] args) {
+        int i = new 寻找素数().countPrimes(100);
+        System.out.println(i);
+    }
+
+    int countPrimes(int n) {
+
+        boolean[] isPrim = new boolean[n];
+        Arrays.fill(isPrim, true);
+
+        for (int i = 2; i * i <= n; i++) {
+            if (isPrim[i]) {
+                for (int j = i * i; j < n; j += i) {
+                    isPrim[j] = false;
+                }
+            }
+        }
+
+        int count = 0;
+        for (int i = 2; i < n; i++) {
+            if (isPrim[i]) count++;
+        }
+        return count;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class 括号生成回溯法 {
+
+
+    public static void main(String[] args) {
+        List<String> strings = new 括号生成回溯法().generateParenthesis(3);
+        System.out.println(strings);
+    }
+
+    public List<String> generateParenthesis(int n) {
+        if (n == 0) return new LinkedList<String>();
+        List<String> res = new LinkedList<>();
+        StringBuilder track = new StringBuilder();
+        // 可用的左括号和右括号数量初始化为 n
+        backtrack(n, n, track, res);
+
+        return res;
+
+    }
+
+    // 回溯
+    private void backtrack(int left, int right, StringBuilder track, List<String> res) {
+
+        System.out.println(track.toString());
+        if (left > right) return;
+
+        if (left < 0 || right < 0) return;
+
+        if (left == 0 && right == 0) {
+            res.add(track.toString());
+            return;
+        }
+
+        track.append(')');
+        backtrack(left, right - 1, track, res);
+        track.deleteCharAt(track.length() - 1);
+
+        track.append('(');
+        backtrack(left - 1, right, track, res);
+        track.deleteCharAt(track.length() - 1);
+
+
+
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+
+https://labuladong.github.io/ebook/%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E7%B3%BB%E5%88%97/%E6%8E%A5%E9%9B%A8%E6%B0%B4.html
+可以接水的容量是由min(左侧最大值，右侧最大值)决定的
+双指针则是两边同时移动，
+如果左侧的最大值小于了右侧的一个值，那么用左侧的最大值来计算水量就肯定没问题，
+就这样左侧移动一下
+ */
+public class 接雨水双指针 {
+
+    public int trap(int[] height){
+        if(height.length==0) return 0;
+        int n = height.length;
+        int left =0,right = n-1;
+        int ans = 0;
+
+        int l_max = height[0];
+        int r_max = height[n-1];
+
+        while(left <= right){
+            l_max = Math.max(l_max,height[left]);
+            r_max = Math.max(r_max,height[right]);
+
+            if(l_max < r_max){
+                ans += l_max - height[left];
+                left++;
+            }else{
+                ans += r_max - height[right];
+                right--;
+            }
+        }
+        return ans;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+public class 无序数组中第K大的元素 {
+
+    public static void main(String[] args) {
+
+        int[] arr= new int[]{3,7,2,1,8,9};
+
+        int numberK = findNumberK(arr, 4);
+        System.out.println(numberK);
+    }
+
+
+    public static int findNumberK(int[] array, int k) {
+
+        // 如果k大于等于数组长度，返回最小值
+
+
+        // 用前K个元素构建小顶堆
+        buildHeap(array, k);
+
+        for (int i = k; i < array.length; i++) {
+            if (array[i] > array[0]) {
+                swap(array,i,0);
+                heap(array, 0, k-1);
+            }
+        }
+
+        return array[0];
+
+    }
+
+    // 从尾部，全部堆化
+    private static void buildHeap(int[] array, int k) {
+        for (int i = 1; i < k; i++) {
+            while ((i - 1) / 2 >= 0 && array[i] < array[(i - 1) / 2]) {
+                swap(array, i, (i - 1) / 2);
+                i = (i - 1) / 2;
+            }
+        }
+    }
+
+    // 从顶部堆化
+    private static void heap(int[] array, int index, int k) {
+
+        while (index < k) {
+
+            int minValueIndex = index;
+
+            if (2 * index + 1 <= k && array[index] > array[2 * index + 1]) {
+                minValueIndex = 2 * index + 1;
+            }
+            if (2 * index + 2 <= k && array[minValueIndex] > array[2 * index + 2]) {
+                minValueIndex = 2 * index + 2;
+            }
+
+            if (minValueIndex == index) break;
+
+            swap(array, minValueIndex, index);
+
+            index = minValueIndex;
+
+        }
+
+    }
+
+
+    public static void swap(int[] arr, int i, int j) {
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+}
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Arrays;
+
+/*
+https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97.html
+
+ */
+public class 最长公共子序列 {
+
+    public static void main(String[] args) {
+        String a = "abcde";
+        String b = "ace";
+
+        int i = new 最长公共子序列().longestCommonSubsequence2(a, b);
+        System.out.println(i);
+    }
+
+
+    public String S1, S2;
+
+    // 使用递归法，会存在很多重复计算
+    public int longestCommonSubsequence(String s1, String s2) {
+
+        S1 = s1;
+        S2 = s2;
+
+        int dp = dp(s1.length() - 1, s2.length() - 1);
+
+        return dp;
+
+    }
+
+    private int dp(int i, int j) {
+        // base case情况
+        if (i == -1 || j == -1) return 0;
+
+        if (S1.charAt(i) == S2.charAt(j)) {
+            return dp(i - 1, j - 1) + 1;
+        } else {
+            return Math.max(dp(i - 1, j), dp(i, j - 1));
+        }
+    }
+
+
+    // 使用动态规划
+    public int longestCommonSubsequence2(String s1, String s2) {
+
+        int m = s1.length();
+        int n = s2.length();
+
+        int[][] dp = new int[m + 1][n + 1];
+
+        // 其实默认初始化就是0
+//        for (int i = 0; i < m + 1; i++) {
+//            for (int j = 0; j < n + 1; j++) {
+//                dp[i][j] = 0;
+//            }
+//        }
+
+        for (int i = 1; i < m + 1; i++) {
+            for (int j = 1; j < n + 1; j++) {
+                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[m][n];
+    }
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+public class 最长回文子串 {
+
+    String longestPalindrome(String s) {
+        String res = null;
+        for (int i = 0; i < s.length(); i++) {
+            // 以 s[i] 为中心的最长回文子串
+            String s1 = palindrome(s, i, i);
+            // 以 s[i] 和 s[i+1] 为中心的最长回文子串
+            String s2 = palindrome(s, i, i + 1);
+            // res = longest(res, s1, s2)
+            res = res.length() > s1.length() ? res : s1;
+            res = res.length() > s2.length() ? res : s2;
+        }
+        return res;
+    }
+
+    String palindrome(String s, int l, int r) {
+        // 防止索引越界
+        while (l >= 0 && r < s.length()
+                && s.charAt(l) == s.charAt(r)) {
+            // 向两边展开
+            l--;
+            r++;
+        }
+        // 返回以 s[l] 和 s[r] 为中心的最长回文串
+//        return s.substr(l + 1, r - l - 1);
+        return s.substring(l + 1, r);
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Arrays;
+
+//https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E8%AE%BE%E8%AE%A1%EF%BC%9A%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97.html
+// 我们的定义是这样的：dp[i] 表示以 nums[i] 这个数结尾的最长递增子序列的长度。
+
+public class 最长递增子序列 {
+
+    public static void main(String[] args) {
+
+        int[] a = new int[]{1, 4, 3, 4, 2, 3};
+
+        int i = new 最长递增子序列().lengthOfLIS(a);
+        System.out.println(i);
+    }
+
+    public int lengthOfLIS(int[] nums) {
+
+        int[] dp = new int[nums.length];
+
+        // base case：dp 数组全都初始化为 1
+        Arrays.fill(dp, 1);
+        for (int i = 0; i < nums.length; i++) {
+
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j])
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+
+        }
+
+        int res = 0;
+        for (int i = 0; i < dp.length; i++) {
+            res = Math.max(res, dp[i]);
+        }
+
+        return res;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+public class 栈实现队列 {
+
+    private Stack<Integer> s1, s2;
+
+    public 栈实现队列() {
+        s1 = new Stack<>();
+        s2 = new Stack<>();
+    }
+
+    // 添加元素
+    public void push(int x) {
+        s1.push(x);
+    }
+
+    // 删除队列头部元素，并返回
+    public int pop() {
+        peek();
+        return s2.pop();
+    }
+
+    // 返回头部元素d
+    public int peek() {
+        if (s2.empty()) {
+            // 把s1元素压入s2
+            while (!s1.empty()) {
+                s2.push(s1.pop());
+            }
+        }
+        return s2.peek();
+    }
+
+    // 判断队列是否为空
+    public boolean empty() {
+        return s1.isEmpty() && s2.isEmpty();
+    }
+}
+
+
+class 用队列实现栈 {
+
+    private Queue<Integer> q = new LinkedList<>();
+    int top_elem = 0;
+
+    //添加元素
+    public void push(int x) {
+        q.offer(x);
+        top_elem = x;
+    }
+
+    // 删除栈顶元素d
+    public int pop() {
+        return top_elem;
+    }
+
+    // 返回栈顶元素d
+    public int top() {
+        int size = q.size();
+        // 留下最后两个元素
+        while (size > 2) {
+            q.offer(q.poll());
+            size--;
+        }
+
+        // 记录新的队尾元素
+        top_elem = q.peek();
+        q.offer(q.poll());
+
+        return q.poll();
+    }
+
+    // 判断栈是否为空
+    public boolean empty() {
+        return q.isEmpty();
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+
+https://github.com/labuladong/fucking-algorithm/blob/master/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E4%B9%8B%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE.md
+
+s = "ab"
+p = "a*b"
+ */
+
+import java.util.ArrayList;
+
+public class 正则表达式DP {
+
+    public static void main(String[] args) {
+
+        String a = "aab";
+        String b = ".a*b";
+        boolean match = new 正则表达式DP().isMatch(a, b);
+        System.out.println(match);
+    }
+
+
+    public boolean isMatch(String text, String pattern) {
+
+        if (pattern == null || pattern.equals("")) {
+            if (text.equals("")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        boolean first = stringBool(text) && patternBool(pattern, text);
+
+        if (pattern.length() >= 2 && pattern.charAt(1) == '*') {
+            return isMatch(text, pattern.substring(2)) || (first && isMatch(text.substring(1), pattern));
+        } else {
+            return first && isMatch(text.substring(1), pattern.substring(1));
+        }
+
+    }
+
+    private boolean stringBool(String text) {
+        if (text.equals("")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean patternBool(String pattern, String text) {
+        ArrayList<Character> chars = new ArrayList<>();
+        chars.add(text.charAt(0));
+        chars.add('.');
+        if (chars.contains(pattern.charAt(0))) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.Deque;
+import java.util.LinkedList;
+
+public class 滑动窗口最大值单调队列leetcode239 {
+
+    public static void main(String[] args) {
+
+        int[] a = new int[]{1, 3, -1, -3, 5, 3, 6, 7};
+        int[] ints = new 滑动窗口最大值单调队列leetcode239().maxSlidingWindow(a, 3);
+        System.out.println(ints);
+
+    }
+
+
+    public int[] maxSlidingWindow(int[] nums, int k) {
+
+        MonotonicQueue window = new MonotonicQueue();
+        int[] res = new int[nums.length - k + 1];
+
+        for (int i = 0; i < nums.length; i++) {
+            if (i < k - 1) {
+                window.push(nums[i]);
+            } else {
+                window.push(nums[i]);
+                res[i - k + 1] = window.max();
+                window.pop(nums[i - k + 1]);
+
+            }
+        }
+        return res;
+    }
+
+    // 定义单调队列
+    class MonotonicQueue {
+
+        private Deque<Integer> data = new LinkedList<>();
+
+        public void push(int n) {
+            while (!data.isEmpty() && data.getLast() < n) {
+                data.removeLast();
+            }
+            data.addLast(n);
+        }
+
+        public int max() {
+            return data.getFirst();
+        }
+
+        public void pop(int n) {
+            if (!data.isEmpty() && data.peek() == n) {
+                data.removeFirst();
+            }
+        }
+    }
+}
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.HashMap;
+
+/*
+https://mp.weixin.qq.com/s/OyqQXQnyH_UzmxdytK2rTA
+回溯法 和 带备忘录的递归
+ */
+public class 目标和leetcode494 {
+
+    int result = 0;
+
+    public int findTargetSumWays(int[] nums, int target) {
+
+        if (nums.length == 0) return 0;
+        backtrack(nums, 0, target);
+        return result;
+    }
+
+    // 回溯算法模板
+    private void backtrack(int[] nums, int i, int rest) {
+        // base case
+        if (i == nums.length) {
+            if (rest == 0) result++;
+            return;
+        }
+
+        // 给 nums[i] 选择 - 号
+        rest += nums[i];
+        // 穷举 nums[i + 1]
+        backtrack(nums, i + 1, rest);
+        // 撤销
+        rest -= nums[i];
+
+        // 给 nums[i] 选择 + 号
+        rest -= nums[i];
+        // 穷举 nums[i + 1]
+        backtrack(nums, i + 1, rest);
+        // 撤销选择
+        rest += nums[i];
+
+    }
+}
+
+class 目标和leetcode494_2 {
+
+    // 备忘录
+    HashMap<String, Integer> memo = new HashMap<>();
+
+    int findTargetSumWays(int[] nums, int target) {
+        if (nums.length == 0) return 0;
+        return dp(nums, 0, target);
+    }
+
+    private int dp(int[] nums, int i, int rest) {
+
+        // base case
+        if (i == nums.length) {
+            if (rest == 0) return 1;
+            return 0;
+        }
+
+        // 把它俩转成字符串才能作为哈希表的键
+        String key = i + "," + rest;
+        if (memo.containsKey(key)) {
+            return memo.get(key);
+        }
+
+        // 穷举
+        int result = dp(nums, i + 1, rest - nums[i]) + dp(nums, i + 1, rest + nums[i]);
+
+        // 计入备忘录
+        memo.put(key, result);
+        return result;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+import java.util.HashMap;
+
+/*
+
+
+https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB.html#%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB
+
+给定两个字符串，计算出把s1变成s2所需要的最少操作数
+你可以插入 删除 替换一个字符
+ */
+public class 编辑距离 {
+
+    // 全局变量
+    public String S1, S2;
+
+
+    public static void main(String[] args) {
+        String a = "rad";
+        String b = "apple";
+        int i = new 编辑距离().minDistance2(b, a);
+        System.out.println(i);
+    }
+
+    //递归
+    public int minDistance(String s1, String s2) {
+
+        S1 = s1;
+        S2 = s2;
+        int[][] memo = new int[s1.length() + 1][s2.length() + 1];
+        return dp(s1.length() - 1, s2.length() - 1);
+
+    }
+
+    //dp 返回 s1[0..i] 和 s2[0..j] 的最小编辑距离
+    private int dp(int i, int j) {
+
+        // base case
+        if (i == -1) return j + 1;
+        if (j == -1) return i + 1;
+
+        if (S1.charAt(i) == S2.charAt(j)) {
+            return dp(i - 1, j - 1);
+        } else {
+            return min(dp(i, j - 1) + 1, dp(i - 1, j) + 1, dp(i - 1, j - 1) + 1);// 插入,删除,替换
+        }
+
+    }
+
+
+//    private int dp2(int i, int j, int[][] memo) {
+//
+//        // base case
+//        if (i == -1) return j + 1;
+//        if (j == -1) return i + 1;
+//
+//        // 带有备忘录的递归
+//        if (memo[i][j] != 0) {
+//            return memo[i + 1][j + 1];
+//        }
+//
+//        if (S1.charAt(i) == S2.charAt(j)) {
+//            int t = dp2(i - 1, j - 1, memo);
+//            return t;
+//        } else {
+//
+//            int a = dp2(i, j - 1, memo) + 1;
+//            memo[i + 1][j] = a;
+//            int b = dp2(i - 1, j, memo) + 1;
+//            memo[i][j + 1] = b;
+//            int c = dp2(i - 1, j - 1, memo) + 1;
+//            memo[i][j] = c;
+//
+//            int min = Math.min(a, b)// 插入
+//                    ;  // 删除
+//
+//            int min1 = Math.min(min, c); //替换
+//
+//            return min1;
+//
+//        }
+//
+//    }
+
+    // 动态规划
+    public int minDistance2(String s1, String s2) {
+
+        int m = s1.length();
+        int n = s2.length();
+
+        int[][] dp = new int[m + 1][n + 1];
+
+        // base case
+        for (int i = 1; i <= m; i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 1; j <= n; j++) {
+            dp[0][j] = j;
+        }
+
+        // 自底向上
+        for (int i = 1; i <= m; i++)
+            for (int j = 1; j <= n; j++)
+                if (s1.charAt(i - 1) == s2.charAt(j - 1))
+                    dp[i][j] = dp[i - 1][j - 1];
+                else
+                    dp[i][j] = min(
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1,
+                            dp[i - 1][j - 1] + 1
+                    );
+        // 储存着整个 s1 和 s2 的最小编辑距离
+        return dp[m][n];
+    }
+
+    int min(int a, int b, int c) {
+        return Math.min(a, Math.min(b, c));
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+
+Leetcode 股票合集 【121、122、714、309】
+ */
+public class 股票 {
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+//https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E8%83%8C%E5%8C%85%E5%AD%90%E9%9B%86.html
+416题：
+这道题给了我们一个只包含正整数的非空数组。问我们是否可以将这个数组分割成两个子集，
+使得这两个子集的元素的和相等。
+
+我们看示例 1：给出的数组是 [1, 5, 11, 5]，这个数组中所有元素之和是 22，
+示例中给出的分割是 [1, 5, 5] 和 [11]。
+
+ */
+
+public class 背包子集 {
+
+    public static void main(String[] args) {
+        int[] a = {2,3,3};
+        boolean b = new 背包子集().canPartition(a);
+        System.out.println(b);
+
+    }
+
+    // 动态规划法
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+
+        if (sum % 2 != 0) return false;
+
+        int n = nums.length;
+        sum = sum / 2;
+        boolean[][] dp = new boolean[n + 1][sum + 1];
+
+        // base case
+        for (int i = 0; i <= n; i++) {
+            dp[i][0] = true;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= sum; j++) {
+                if (j - nums[i - 1] < 0) {
+                    // 背包容量不足，不能装入第 i 个物品
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    // 装入或不装入背包
+                    dp[i][j] = dp[i - 1][j] || dp[i - 1][j - nums[i - 1]];
+                }
+            }
+
+        }
+        return dp[n][sum];
+
+    }
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+
+/*
+//https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E8%83%8C%E5%8C%85%E9%9B%B6%E9%92%B1.html
+聊的是 LeetCode 第 518 题 Coin Change 2，题目如下：
+
+
+有一个背包，最大容量为 amount，有一系列物品 coins，每个物品的重量为 coins[i]，每个物品的数量无限。请问有多少种方法，能够把背包恰好装满？
+
+这个问题和我们前面讲过的两个背包问题，有一个最大的区别就是，每个物品的数量是无限的，这也就是传说中的「完全背包问题」，没啥高大上的，无非就是状态转移方程有一点变化而已。
+
+ */
+public class 背包完全背包 {
+
+    public static void main(String[] args) {
+
+        int amount = 5;
+        int[] a = {1, 2, 3};
+
+        int change = new 背包完全背包().change(5, a);
+        System.out.println(change);
+    }
+
+    int change(int amount, int[] coins) {
+
+        int n = coins.length;
+        int[][] dp = new int[n + 1][amount + 1];
+
+        // base case
+        for (int i = 0; i <= n; i++)
+            dp[i][0] = 1;
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= amount; j++)
+                if (j - coins[i - 1] >= 0)
+                    dp[i][j] = dp[i - 1][j]
+                            + dp[i][j - coins[i - 1]];
+                else
+                    dp[i][j] = dp[i - 1][j];
+        }
+        return dp[n][amount];
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.专栏;
+/*
+https://labuladong.github.io/ebook/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%B3%BB%E5%88%97/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98.html
+给你一个可装载重量为 W 的背包和 N 个物品，每个物品有重量和价值两个属性。
+其中第 i 个物品的重量为 wt[i]，价值为 val[i]，现在让你用这个背包装物品，
+最多能装的价值是多少？
+举个简单的例子，输入如下：
+
+N = 3, W = 4
+wt = [2, 1, 3]
+val = [4, 2, 3]
+算法返回 6，选择前两件物品装进背包，总重量 3 小于 W，可以获得最大价值 6。
+
+题目就是这么简单，一个典型的动态规划问题。这个题目中的物品不可以分割，要么装进包里，
+要么不装，不能说切成两块装一半。这就是 0-1 背包这个名词的来历。
+
+dp[i][w] 的定义如下：对于前 i 个物品，当前背包的容量为 w，
+这种情况下可以装的最大价值是 dp[i][w]。
+
+比如说，如果 dp[3][5] = 6，其含义为：对于给定的一系列物品中，若只对前 3 个物品进行选择，
+当背包容量为 5 时，最多可以装下的价值为 6。
+
+ */
+
+
+public class 背包问题 {
+
+    public static void main(String[] args) {
+
+        int N = 3;
+        int W = 4;
+        int[] wt = new int[]{2, 1, 3};
+        int[] val = new int[]{4, 3, 3};
+
+        int knapsack = new 背包问题().knapsack(W, N, wt, val);
+        System.out.println(knapsack);
+    }
+
+
+    // 使用动态规划
+    public int knapsack(int W, int N, int[] wt, int[] val) {
+        // base case 初始化
+        int[][] dp = new int[N + 1][W + 1];
+        for (int i = 0; i < N + 1; i++) {
+            for (int j = 0; j < W + 1; j++) {
+                dp[i][j] = 0;
+            }
+        }
+
+        for (int i = 1; i <= N; i++) {
+            for (int w = 1; w <= W; w++) {
+                if (w - wt[i - 1] < 0) {
+                    // 这种情况下只能选择不装入背包
+                    dp[i][w] = dp[i - 1][w];
+                } else {
+                    dp[i][w] = Math.max(dp[i - 1][w - wt[i - 1]] + val[i - 1], dp[i - 1][w]);
+                }
+            }
+        }
+        return dp[N][N];
+    }
+}
+
+
+
+
