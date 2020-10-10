@@ -1,0 +1,992 @@
+
+
+
+DataTree.java
+ListNode.java
+Node.java
+Solution100相同的树.java
+Solution104二叉最大深度.java
+Solution111二叉最小深度.java
+Solution141环形链表判断.java
+Solution142环形链表入环.java
+Solution144二叉前序遍历.java
+Solution53最大子序和.java
+Solution559N叉最大深度.java
+Solution752密码锁.java
+Solution94中序遍历.java
+Sword27二叉镜像反转.java
+Sword32二叉换行打印.java
+tmp.java
+TreeNode.java
+旋转数组189题.java
+
+=====
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+
+import java.util.ArrayList;
+
+public class DataTree {
+
+
+    public static TreeNode getTreeNode() {
+
+        TreeNode a1 = new TreeNode(1);
+        TreeNode a2 = new TreeNode(2);
+        TreeNode a3 = new TreeNode(3);
+        TreeNode a4 = new TreeNode(4);
+        TreeNode a5 = new TreeNode(5);
+
+
+        a1.left = a2;
+        a1.right = a3;
+        a2.left = a4;
+        a2.right = a5;
+
+        return a1;
+    }
+
+    public static TreeNode getTreeNode(int flag) {
+
+        TreeNode a1 = new TreeNode(1);
+        TreeNode a2 = new TreeNode(2);
+        TreeNode a3 = new TreeNode(3);
+        TreeNode a4 = new TreeNode(4);
+        TreeNode a5 = new TreeNode(5);
+        TreeNode a6 = new TreeNode(6);
+        TreeNode a7 = new TreeNode(7);
+
+
+        a1.left = a2;
+        a1.right = a3;
+        a2.left = a4;
+        a2.right = null;
+        a3.left = a5;
+        a5.left = a6;
+        a5.right = a7;
+
+        return a1;
+    }
+
+    public static Node getNode(){
+        Node a1 = new Node(1);
+        Node a2 = new Node(2);
+        Node a3 = new Node(3);
+        Node a4 = new Node(4);
+        Node a5 = new Node(5);
+        Node a6 = new Node(6);
+
+        //a1.children = new ArrayList<>();
+
+        a1.children.add(a2);
+        a1.children.add(a3);
+        a1.children.add(a4);
+
+        //a3.children = new ArrayList<>();
+        a3.children.add(a5);
+        a3.children.add(a6);
+
+        return a1;
+
+    }
+
+    public static ListNode getListNode(){
+        ListNode a1 = new ListNode(1);
+        ListNode a2 = new ListNode(2);
+        ListNode a3 = new ListNode(3);
+        ListNode a4 = new ListNode(4);
+
+        a1.next = a2;
+        a2.next = a3;
+        a3.next = a4;
+
+        return a1;
+    }
+
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+public class ListNode {
+    public int val;
+    public ListNode next = null;
+    public ListNode(int val) {
+        this.val = val;
+    }
+
+    @Override
+    public String toString() {
+        return "ListNode{" +
+                "val=" + val +
+                '}';
+    }
+
+    public static void traverse(ListNode listNode) {
+        while (listNode != null){
+//            Thread.sleep(1000);
+            System.out.println(listNode.val);
+            listNode = listNode.next;
+        }
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class Node {
+    public int val;
+    public List<Node> children =  new ArrayList<>();// 初始化为空数组
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+};
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+
+// 100.相同的树
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution100相同的树 {
+
+    public static void main(String[] args) {
+
+        TreeNode treeNode1 = DataTree.getTreeNode();
+        TreeNode treeNode2 = DataTree.getTreeNode();
+        boolean sameTree = new Solution100相同的树().isSameTree(treeNode1, treeNode2);
+        System.out.println(sameTree);
+    }
+
+    // 方法一 ： 使用迭代方法
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) return true;
+        else if (p == null || q == null) return false;
+        else {
+            if (p.val != q.val) return false;
+        }
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+
+import javafx.util.Pair;
+
+import java.util.*;
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode(int x) { val = x; }
+ * }
+ */
+//二叉树的最大深度
+class Solution104二叉最大深度 {
+
+    public static void main(String[] args) {
+
+        TreeNode treeNode = DataTree.getTreeNode(1);
+
+        int i = new Solution104二叉最大深度().maxDepth(treeNode);
+        System.out.println(i);
+
+    }
+
+
+
+    // 使用广度优先遍历，借助队列
+    //BFS 非递归的方法。遍历一层，depth加一
+    public int maxDepth3(TreeNode root) {
+
+        int depth = 0;
+        Queue<TreeNode> queue = new LinkedList();
+
+        if (root == null) return depth;
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            int len = queue.size();
+            for (int i = 0; i < len; i++) {
+                TreeNode tmp = queue.remove();
+                if (tmp.left != null) queue.offer(tmp.left);
+                if (tmp.right != null) queue.offer(tmp.right);
+            }
+            depth++;
+        }
+        return depth;
+    }
+
+    // 方法二 使用使用深度优先的递归
+    public int maxDepth2(TreeNode root) {
+        if (root == null) return 0;
+        int maxL = maxDepth2(root.left);
+        int maxR = maxDepth2(root.right);
+        return Math.max(maxL, maxR)+1;
+    }
+
+
+    // 方法三：深度优先遍历，得到最大深度
+    public int maxDepth(TreeNode root) {
+
+        int maxDepth = 0;
+        Pair<TreeNode, Integer> pair = new Pair<>(root,1);
+        Stack<Pair<TreeNode, Integer>> stack = new Stack<>();
+
+        if (root == null) return 0;
+        stack.push(pair);
+        //先进后出
+        while (!stack.isEmpty()) {
+            Pair<TreeNode, Integer> curr = stack.pop();
+            maxDepth = Math.max(maxDepth,curr.getValue());
+
+            if (curr.getKey().right != null) {
+                stack.push(new Pair<>(curr.getKey().right,curr.getValue()+1));
+            }
+            if (curr.getKey().left != null) {
+                stack.push(new Pair<>(curr.getKey().left,curr.getValue()+1));
+            }
+        }
+        return maxDepth;
+    }
+
+
+
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import javafx.util.Pair;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+// 二叉树的最小深度
+public class Solution111二叉最小深度 {
+
+    public static void main(String[] args) {
+
+        TreeNode treeNode = DataTree.getTreeNode();
+        int i = new Solution111二叉最小深度().minDepth(treeNode);
+        System.out.println(i);
+    }
+
+
+    // 方法一：递归法
+    public int minDepth(TreeNode root) {
+
+        if (root == null) return 0;
+        if (root.left == null) return 1 + minDepth(root.right); //如果只有右孩子
+        if (root.right == null) return 1 + minDepth(root.left); // 如果只有左孩子
+        return 1 + Math.min(minDepth(root.left), minDepth(root.right));
+
+    }
+
+    // 方法二：广度优先遍历（BFS）要明确，当我们遇到第一个叶子结点的时候就停止迭代，
+    // 返回当前的层数，所以要在求二叉树最大深度的代码上加上一个判断
+    public int minDepth3(TreeNode root) {
+
+        int depth = 0;
+        Queue<TreeNode> queue = new LinkedList();
+        if (root == null) return depth;
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int len = queue.size();
+            for (int i = 0; i < len; i++) {
+                TreeNode remove = queue.remove();
+                if (remove.left == null && remove.right == null) {
+                    depth += 1;
+                    return depth;
+                }
+                if (remove.left != null) queue.offer(remove.left);
+                if (remove.right != null) queue.offer(remove.right);
+            }
+            depth++;
+        }
+        return depth;
+    }
+
+    // 方法三：深度优先，但是需要遍历所有节点才能找到答案
+    public int minDepth2(TreeNode root) {
+
+        int minDepth = Integer.MAX_VALUE;
+        Pair<TreeNode, Integer> pair = new Pair<>(root, 1);
+        Stack<Pair<TreeNode, Integer>> stack = new Stack<>();
+
+        if (root == null) return 0;
+        stack.push(pair);
+        //先进后出
+        while (!stack.isEmpty()) {
+            Pair<TreeNode, Integer> curr = stack.pop();
+            if (curr.getKey().right == null && curr.getKey().left == null) {
+                minDepth = Math.min(minDepth, curr.getValue());
+            }
+
+            if (curr.getKey().right != null) {
+                stack.push(new Pair<>(curr.getKey().right, curr.getValue() + 1));
+            }
+            if (curr.getKey().left != null) {
+                stack.push(new Pair<>(curr.getKey().left, curr.getValue() + 1));
+            }
+        }
+        return minDepth;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class Solution141环形链表判断 {
+
+    // 方法一：使用set
+    public boolean hasCycle(ListNode head) {
+        if (head == null) return false;
+        Set<ListNode> set = new HashSet<>();
+        while (head.next != null) {
+            if (set.contains(head))
+                return true;
+            else
+                set.add(head);
+            head = head.next;
+        }
+        return false;
+    }
+
+
+    // 双指针法
+    public boolean hasCycle2(ListNode head) {
+        if (head == null || head.next == null) {
+            return false;
+        }
+        ListNode slow = head;
+        ListNode fast = head.next;
+        while (slow != fast) {
+            if (fast == null || fast.next == null) {
+                return false;
+            }
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return true;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.HashSet;
+import java.util.Set;
+
+
+public class Solution142环形链表入环 {
+
+
+    //方法二：使用快慢指针，慢指针移动1步，快指针移动2步
+    //首先判断是否有环，没有直接返回null，有则获取快慢指针的相遇点
+    //假设head指针到入口处的距离为F，相遇点到入口处距离为a，相遇点到入口处的剩下距离为b
+    //快指针移动的距离是慢指针的2倍
+    //2(F + a) = F + a + b + a -->F=b
+    //得到F=b，也就是说指针从head节点出发和从相遇点出发最终会在入口处相遇
+    public ListNode EntryNodeOfLoop(ListNode pHead) {
+        if (pHead == null || pHead.next == null) {
+            return null;
+        }
+        ListNode fast = pHead;
+        ListNode slow = pHead;
+        while (fast != null && fast.next != null) {//因为fast每次要走两步，所有需要判断fast的下一个是否为空
+            slow = slow.next;
+            fast = fast.next.next;//一个走一步 一个走两步
+            if (slow == fast) {
+                fast = pHead;
+                while (slow != fast) {
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+                return slow;
+            }
+        }
+        return null;
+    }
+
+    // 使用hashSet
+    public ListNode detectCycle(ListNode head) {
+
+        Set<ListNode> visited = new HashSet<ListNode>();
+
+        ListNode node = head;
+        while (node != null) {
+            if (visited.contains(node)) {
+                return node;
+            }
+            visited.add(node);
+            node = node.next;
+        }
+
+        return null;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+// 二叉树的前序遍历
+public class Solution144二叉前序遍历 {
+
+    public static void main(String[] args) {
+
+        TreeNode treeNode = DataTree.getTreeNode();
+        List<Integer> integers = new Solution144二叉前序遍历().preorderTraversal2(treeNode);
+        for (int i = 0; i < integers.size(); i++) {
+            System.out.println(integers.get(i));
+        }
+    }
+
+    /**
+     * 递归的方法
+     *
+     * @param root
+     * @return
+     */
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        helper(root, res);
+        return res;
+    }
+
+    public void helper(TreeNode root, List<Integer> res) {
+        if (root != null) {
+            res.add(root.val);
+            if (root.left != null) {
+                helper(root.left, res);
+            }
+            if (root.right != null) {
+                helper(root.right, res);
+            }
+        }
+    }
+
+
+    /**
+     * 迭代的解法
+     * 使用栈
+     */
+    public List<Integer> preorderTraversal2(TreeNode root) {
+
+        List<Integer> res = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+
+        if (root == null) return res;
+        stack.push(root);
+        //先进后出
+        while (!stack.isEmpty()) {
+            TreeNode curr = stack.pop();
+            res.add(curr.val);
+            if (curr.right != null) {
+                stack.push(curr.right);
+            }
+            if (curr.left != null) {
+                stack.push(curr.left);
+            }
+        }
+        return res;
+    }
+}
+
+
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+public class Solution53最大子序和 {
+
+    public static void main(String[] args) {
+        int[] array = new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4};
+
+        int i = new Solution53最大子序和().maxSubArray(array);
+        System.out.println(i);
+
+    }
+
+    // 动态规划解法
+    public int maxSubArray2(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+        int[] dp = new int[n];  // dp=[-2,1,-2,4,3,5,6,1,5]
+
+        dp[0] = nums[0];
+
+        // 状态转移方程
+        for (int i = 1; i < n; i++) {
+            dp[i] = Math.max(nums[i], nums[i] + dp[i - 1]);
+        }
+
+        // 得到nums的最大子数组
+        int res = Integer.MIN_VALUE;
+        System.out.println(res);
+        for (int i = 0; i < n; i++) {
+            res = Math.max(res, dp[i]);
+        }
+
+        return res;
+
+    }
+
+    // 因为dp[i] 仅仅和 dp[i-1] 的状态有关，那么我们可以进行「状态压缩」，将空间复杂度降低：
+    public int maxSubArray优化空间版(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+//        int[] dp = new int[n];
+
+        int dp_0 = nums[0];
+        int dp_1 = 0;
+        int res = nums[0];
+
+        for (int i = 0; i < n; i++) {
+
+            dp_1 = Math.max(nums[i], nums[i] + dp_0);
+            dp_0 = dp_1;
+            // 顺便计算最大的结果
+            res = Math.max(res, dp_1);
+        }
+
+        return res;
+
+    }
+
+    public int maxSubArray3(int[] nums) {
+
+        int n = nums.length;
+        if (n == 0) return 0;
+        int[] dp = new int[n];
+
+        dp[0] = nums[0];
+
+        for (int i = 1; i < n; i++) {
+            if (dp[i - 1] < 0) {
+                dp[i] = nums[i];
+            } else {
+                dp[i] = nums[i] + dp[i - 1];
+            }
+        }
+
+        int res = Integer.MIN_VALUE;
+        for (int i = 0; i < n; i++) {
+            res = Math.max(res, dp[i]);
+        }
+
+        return res;
+
+    }
+
+    public int maxSubArray(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+        int max = nums[0];
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            count += nums[i];
+            if (count > max) max = count;
+            if (count < 0) count = 0;
+        }
+        return max;
+    }
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.LinkedList;
+
+// N叉树的最大深度
+public class Solution559N叉最大深度 {
+
+    public static void main(String[] args) {
+
+        Node node = DataTree.getNode();
+        int i = new Solution559N叉最大深度().maxDepth(node);
+        System.out.println(i);
+    }
+
+
+    // 方法一：宽度优先遍历
+    public int maxDepth(Node root) {
+
+        int level = 0;
+        LinkedList<Node> queue = new LinkedList<>();
+
+        if(root == null) return 0;
+        queue.add(root);
+        while (!queue.isEmpty()){
+
+            level += 1;
+            int len = queue.size();
+            for (int i = 0; i < len; i++) {
+                Node remove = queue.remove();
+                for (Node child : remove.children) {
+                    if(child!=null) queue.offer(child);
+                }
+            }
+        }
+        return level;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.*;
+
+public class Solution752密码锁 {
+
+    public static void main(String[] args) {
+
+        String s = "0202";
+        String[] dead = new String[]{"0201", "0101", "0102", "1212", "2002"};
+
+        int i = new Solution752密码锁().openLock(dead, s);
+        System.out.println(i);
+
+
+    }
+
+
+    public int openLock(String[] deadends, String target) {
+        // 记录需要跳过的死亡密码
+        Set<String> deads = new HashSet<>();
+        for (String s : deadends) deads.add(s);
+        // 记录已经穷举过的密码，防止走回头路
+        Set<String> visited = new HashSet<>();
+        Queue<String> q = new LinkedList<>();
+        // 从起点开始启动广度优先搜索
+        int step = 0;
+        q.offer("0000");
+        visited.add("0000");
+
+        while (!q.isEmpty()) {
+            int sz = q.size();
+            /* 将当前队列中的所有节点向周围扩散 */
+            for (int i = 0; i < sz; i++) {
+                String cur = q.poll();
+
+                /* 判断是否到达终点 */
+                if (deads.contains(cur))
+                    continue;
+                if (cur.equals(target))
+                    return step;
+
+                /* 将一个节点的未遍历相邻节点加入队列 */
+                for (int j = 0; j < 4; j++) {
+                    String up = plusOne(cur, j);
+                    if (!visited.contains(up)) {
+                        q.offer(up);
+                        visited.add(up);
+                    }
+                    String down = minusOne(cur, j);
+                    if (!visited.contains(down)) {
+                        q.offer(down);
+                        visited.add(down);
+                    }
+                }
+            }
+            /* 在这里增加步数 */
+            step++;
+        }
+        // 如果穷举完都没找到目标密码，那就是找不到了
+        return -1;
+    }
+
+    // 将 s[j] 向上拨动一次
+    String plusOne(String s, int j) {
+        char[] ch = s.toCharArray();
+        if (ch[j] == '9')
+            ch[j] = '0';
+        else
+            ch[j] += 1;
+        return new String(ch);
+    }
+
+    // 将 s[i] 向下拨动一次
+    String minusOne(String s, int j) {
+        char[] ch = s.toCharArray();
+        if (ch[j] == '0')
+            ch[j] = '9';
+        else
+            ch[j] -= 1;
+        return new String(ch);
+    }
+}
+
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+// 中序遍历
+class Solution94中序遍历 {
+
+
+    /**
+     * 使用递归
+     * @param root
+     * @return
+     */
+    public List< Integer > inorderTraversal(TreeNode root) {
+        List < Integer > res = new ArrayList< >();
+        helper(root, res);
+        return res;
+    }
+
+    public void helper(TreeNode root, List < Integer > res) {
+        if (root != null) {
+            if (root.left != null) {
+                helper(root.left, res);
+            }
+            res.add(root.val);
+            if (root.right != null) {
+                helper(root.right, res);
+            }
+        }
+    }
+
+    /**
+     * 使用迭代
+     *
+     */
+    public List < Integer > inorderTraversal2(TreeNode root) {
+        List < Integer > res = new ArrayList < > ();
+        Stack < TreeNode > stack = new Stack< >();
+        TreeNode curr = root;
+
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+            curr = stack.pop();
+            res.add(curr.val);
+            curr = curr.right;
+        }
+        return res;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+// 面试题27 二叉树的镜像反转
+public class Sword27二叉镜像反转 {
+
+    public void Mirror(TreeNode root) {
+        if( root == null) return;
+
+        if(root.left == null && root.right ==null) return;
+
+        TreeNode tmp = root.left;
+        root.left = root.right;
+        root.right = tmp;
+
+        Mirror(root.left);
+        Mirror(root.right);
+
+    }
+
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+// 二叉树的逐行打印，需要换行
+public class Sword32二叉换行打印 {
+
+    public static void main(String[] args) {
+        TreeNode treeNode = DataTree.getTreeNode(1);
+        LinkedList<LinkedList<TreeNode>> linkedLists = new Sword32二叉换行打印().maxDepth(treeNode);
+        for (LinkedList<TreeNode> linkedList : linkedLists) {
+            System.out.println();
+            for (TreeNode node : linkedList) {
+                System.out.print(node.val);
+            }
+        }
+    }
+
+
+    // 层序遍历，每一行放到一个列表中
+    public LinkedList<LinkedList<TreeNode>> maxDepth(TreeNode root) {
+
+        LinkedList<LinkedList<TreeNode>> res = new LinkedList<>();
+        LinkedList<TreeNode> eachLevel = null;
+        Queue<TreeNode> queue = new LinkedList();
+
+        if (root == null) return new LinkedList<>();
+        
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            int len = queue.size();
+
+            eachLevel = new LinkedList<>();
+            for (int i = 0; i < len; i++) {
+                TreeNode tmp = queue.remove();
+                eachLevel.add(tmp);
+                if (tmp.left != null) queue.offer(tmp.left);
+                if (tmp.right != null) queue.offer(tmp.right);
+            }
+
+            res.add(eachLevel);
+        }
+
+        return res;
+    }
+
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+import sun.reflect.generics.tree.Tree;
+
+import java.util.*;
+
+
+public class tmp {
+
+
+
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+public class TreeNode {
+
+    public int val;
+    public TreeNode left;
+    public TreeNode right;
+
+    TreeNode() {
+    }
+
+    public TreeNode(int val) {
+        this.val = val;
+    }
+
+    public TreeNode(int val, TreeNode left, TreeNode right) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode;
+
+public class 旋转数组189题 {
+
+    public static void main(String[] args) {
+        int[] a = {1,2,3,4};
+        new 旋转数组189题().rotate(a,3);
+        System.out.println(a);
+    }
+
+    public void rotate(int[] nums, int k) {
+        k %= nums.length;
+        reverse(nums, 0, nums.length-1);
+        reverse(nums, 0, k-1);
+        reverse(nums, k, nums.length-1);
+
+    }
+
+    public void reverse(int[] nums, int l, int h){
+        while(l < h){
+            int tmp = nums[l];
+            nums[l] = nums[h];
+            nums[h] = tmp;
+            l++;
+            h--;
+        }
+    }
+}
