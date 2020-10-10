@@ -1,0 +1,267 @@
+
+快乐数.java
+注解学习.java
+链表是否相交.java
+
+===
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.微信;
+
+public class 快乐数 {
+
+    public static void main(String[] args) {
+        boolean happy = isHappy(19);
+        System.out.println(happy);
+    }
+
+    public static boolean isHappy(int n) {
+        if (n == 1) return true;
+        int temp = n;
+        int sum = 0;
+
+        while (sum != 1) {
+            sum = 0;
+            // 计算得到sum
+            while (temp != 0) {
+                int cur = temp % 10;
+                sum += cur * cur;
+                temp /= 10;
+            }
+            if (sum == n) return false;
+            if (sum == 4) return false;
+            temp = sum;
+        }
+        return true;
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.微信;
+
+import java.lang.annotation.*;
+import java.lang.reflect.Method;
+
+public class 注解学习 {
+}
+//https://mp.weixin.qq.com/s?__biz=MzAxMjY1NTIxNA==&mid=2454441897&idx=1&sn=729688d470c94560c1e73e79f0c13adc&chksm=8c11e0a8bb6669be1cc4daee95b221ba437d536d598520d635fac4f18612dded58d6fddb0dce&scene=21#wechat_redirect
+/**
+ * 定义一个可以注解在Class,interface,enum上的注解
+ *
+ * @author zhangqh
+ * @date 2018年4月22日
+ */
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+ @interface MyAnTargetType {
+    /**
+     * 定义注解的一个元素 并给定默认值
+     * @return
+     */
+    String value() default "我是定义在类接口枚举类上的注解元素value的默认值";
+}
+
+
+/**
+ * 定义一个可以注解在METHOD上的注解
+ *
+ * @author zhangqh
+ * @date 2018年4月22日
+ */
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+ @interface MyAnTargetMethod {
+    /**
+     * 定义注解的一个元素 并给定默认值
+     * @return
+     */
+    String value() default "我是定义在方法上的注解元素value的默认值";
+}
+
+
+/**
+ * 定义一个可以注解在FIELD上的注解
+ *
+ * @author zhangqh
+ * @date 2018年4月22日
+ */
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+ @interface MyAnTargetField {
+    /**
+     * 定义注解的一个元素 并给定默认值
+     * @return
+     */
+    String value() default "我是定义在字段上的注解元素value的默认值";
+}
+
+
+/**
+ * 定义一个可以注解在PARAMETER上的注解
+ *
+ * @author zhangqh
+ * @date 2018年4月22日
+ */
+@Target({ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+ @interface MyAnTargetParameter {
+    /**
+     * 定义注解的一个元素 并给定默认值
+     * @return
+     */
+    String value() default "我是定义在参数上的注解元素value的默认值";
+}
+
+
+//编写一个测试处理类处理以上注解，这边不过多解释，代码中都写了对应的注释如下：
+
+
+
+/**
+ * 测试java注解类
+ *
+ * @author zhangqh
+ * @date 2018年4月22日
+ */
+@MyAnTargetType
+class AnnotationTest {
+
+    @MyAnTargetField
+    private String field = "我是字段";
+
+    @MyAnTargetMethod("测试方法")
+    public void test(@MyAnTargetParameter String args) {
+        System.out.println("参数值 === "+args);
+    }
+
+    public static void main(String[] args) {
+
+        // 获取类上的注解MyAnTargetType
+        MyAnTargetType t = AnnotationTest.class.getAnnotation(MyAnTargetType.class);
+        System.out.println("类上的注解值 === "+t.value());
+
+        MyAnTargetMethod tm = null;
+        try {
+            // 根据反射获取AnnotationTest类上的test方法
+            Method method = AnnotationTest.class.getDeclaredMethod("test",String.class);
+            // 获取方法上的注解MyAnTargetMethod
+            tm = method.getAnnotation(MyAnTargetMethod.class);
+            System.out.println("方法上的注解值 === "+tm.value());
+
+            // 获取方法上的所有参数注解  循环所有注解找到MyAnTargetParameter注解
+            Annotation[][] annotations = method.getParameterAnnotations();
+            for(Annotation[] tt : annotations){
+                for(Annotation t1:tt){
+                    if(t1 instanceof MyAnTargetParameter){
+                        System.out.println("参数上的注解值 === "+((MyAnTargetParameter) t1).value());
+                    }
+                }
+            }
+            method.invoke(new AnnotationTest(), "改变默认参数");
+
+            // 获取AnnotationTest类上字段field的注解MyAnTargetField
+            MyAnTargetField fieldAn = AnnotationTest.class.getDeclaredField("field").getAnnotation(MyAnTargetField.class);
+            System.out.println("字段上的注解值 === "+fieldAn.value());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+%%%%%%%%%%
+
+package com.kirin.LeetCode.微信;
+
+import com.kirin.LeetCode.DataTree;
+import com.kirin.LeetCode.ListNode;
+
+public class 链表是否相交 {
+
+    public static void main(String[] args) {
+        ListNode a1 = new ListNode(1);
+        ListNode a2 = new ListNode(2);
+        ListNode a3 = new ListNode(3);
+        ListNode a4 = new ListNode(4);
+        ListNode a5 = new ListNode(5);
+
+        a1.next = a2;
+        a2.next = a3;
+        a3.next = a4;
+        a5.next = a3;
+
+        ListNode node = new 链表是否相交().find_node(a1, a5);
+        System.out.println(node);
+    }
+
+    public ListNode find_node(ListNode p1, ListNode p2){
+
+        ListNode head1 = p1;
+        ListNode head2 = p2;
+
+        if(p1 == null || p2 == null) {
+            return null;
+        }
+
+        int len1 = 1;
+        int len2 = 1;
+
+        while(p1.next != null){
+            p1 = p1.next;
+            len1++;
+        }
+
+        while(p2.next != null){
+            p2 = p2.next;
+            len2++;
+        }
+
+        if(p1 != p2){
+            return null;
+        }
+
+        int diff = 0;
+        if(len1 > len2){
+            p1 = head1;
+            p2 = head2;
+            diff = len1 - len2;
+        } else{
+            p1 = head2;
+            p2 = head1;
+            diff = len2 - len1;
+        }
+
+        for( int i = 0; i < diff; i++){
+            p1 = p1.next;
+        }
+
+        while(p1 != p2){
+            p1 = p1.next;
+            p2 = p2.next;
+        }
+
+        return p1;
+
+    }
+
+    public static ListNode getListNodeTemp(){
+        ListNode a1 = new ListNode(1);
+        ListNode a2 = new ListNode(2);
+        ListNode a3 = new ListNode(3);
+        ListNode a4 = new ListNode(4);
+        ListNode a5 = new ListNode(5);
+
+        a1.next = a2;
+        a2.next = a3;
+        a3.next = a4;
+        a5.next = a3;
+
+        return a1;
+    }
+}
+
+
