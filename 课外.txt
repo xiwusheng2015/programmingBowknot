@@ -5,7 +5,10 @@ github: https://github.com/shenzhengfang/kkndme_tianya  整理版本
  https://github.com/starshineee/tianya-kkndme-crawl
  
  
+ ## 学区房买房子：
  学区房：https://www.zhihu.com/question/31583274 
+ 上海买房github： https://github.com/ayuer/shanghai_house_knowledge
+ 
 
 
 经济学方面的书最好还是从萨米尔森的经济学看起，尽管很多人觉得很入门级，很不齿，经常有人对于老萨的理论提出质疑。但是它是经济学的基础，吃透了这本书，再读其他的，都很好融会贯通。
